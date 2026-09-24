@@ -35,6 +35,10 @@
   --t-rask: 180ms;
   --t-normal: 420ms;
   --t-sakte: 900ms;
+  --t-signal-pause: 80ms; /* mørkt mellom rødt og grønt */
+  --t-forskyvning: 80ms; /* mellom linjer i SplitText */
+  --t-puls: 3s; /* «Scroll for å kjøre» */
+  --scrub: 0.6;
 
   /* Avstandsskala: 4, 8, 12, 16, 24, 32, 48, 72, 112, 160 px */
   --s-1: 0.25rem;
@@ -66,6 +70,21 @@
   --nav-hoyde: 3.5rem; /* 56 px */
   --sporlinje-x: 4rem; /* 64 px, desktop */
   --tekst-maks: 66ch;
+  --stasjon-innrykk: calc(var(--sporlinje-x) + var(--s-8)); /* innhold til høyre for sporlinjen */
+
+  /* Linjen */
+  --spor-bredde: 2px;
+  --fremdrift-hoyde: 3px;
+  --lampe: 8px;
+  --signalhus-b: 14px;
+  --trikk-b: 12px;
+  --trikk-h: 28px;
+  --hero-gradient: linear-gradient(to bottom, rgb(0 0 0 / 0) 40%, rgb(0 0 0 / 0.55) 100%);
+
+  /* Lag */
+  --z-fremdrift: 30;
+  --z-meny: 40;
+  --z-nav: 50;
 
   /* Fonter */
   --f-serif: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;

@@ -1,0 +1,189 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+
+interface Props {
+  etikett: string;
+  tittel: string;
+  ingress: string;
+  bilde?: { fil: ImageMetadata; alt: string };
+}
+
+const { etikett, tittel, ingress, bilde } = Astro.props;
+---
+
+<section class="hero" data-hero aria-labelledby="hero-tittel">
+  <div class="hero__bilde" data-hero-bilde>
+    {bilde ? (
+      <Picture
+        src={bilde.fil}
+        alt={bilde.alt}
+        formats={['avif', 'webp']}
+        widths={[640, 1024, 1600, 2400]}
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+        class="hero__foto"
+      />
+    ) : (
+      <PhotoPlaceholder tone="mork" fyll etikett="Arkivfoto kommer" />
+    )}
+  </div>
+  <div class="hero__gradient" aria-hidden="true"></div>
+
+  <!-- Sporlinjen starter her og tegnes ned i innholdet -->
+  <svg class="hero__spor" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 2 100">
+    <line x1="1" y1="0" x2="1" y2="100" pathLength="1" data-hero-spor></line>
+  </svg>
+
+  <div class="hero__tekst">
+    <p class="t-etikett hero__etikett">{etikett}</p>
+    <h1 class="hero__tittel" id="hero-tittel" data-hero-tittel>
+      {tittel}
+    </h1>
+    <p class="t-ingress hero__ingress">{ingress}</p>
+  </div>
+
+  <div class="hero__scroll" aria-hidden="true">
+    <span class="t-etikett">Scroll for å kjøre</span>
+    <span class="hero__scroll-strek"></span>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    height: calc(100svh - var(--nav-hoyde));
+    min-height: 32rem;
+    overflow: clip;
+    background: var(--c-tunnel-2);
+    color: var(--c-lys-tekst);
+  }
+
+  .hero__bilde {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% 50%;
+  }
+
+  .hero__bilde :global(img),
+  .hero__foto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--r-ingen);
+    filter: grayscale(1);
+  }
+
+  .hero__gradient {
+    position: absolute;
+    inset: 0;
+    background: var(--hero-gradient);
+  }
+
+  /* Sporlinjen vises bare på desktop, fra nedre del av hero og ned til kanten */
+  .hero__spor {
+    display: none;
+  }
+
+  .hero__spor line {
+    stroke: var(--c-skinne);
+    stroke-width: var(--spor-bredde);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .hero__tekst {
+    position: absolute;
+    inset: auto var(--marg) var(--s-9);
+    display: grid;
+    gap: var(--s-4);
+    max-width: 52rem;
+  }
+
+  .hero__etikett {
+    color: var(--c-lys-tekst-2);
+  }
+
+  .hero__tittel {
+    color: var(--c-lys-tekst);
+  }
+
+  .hero__ingress {
+    max-width: 36ch;
+    color: var(--c-lys-tekst);
+  }
+
+  .hero__scroll {
+    position: absolute;
+    left: 50%;
+    bottom: var(--s-5);
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: var(--s-2);
+    color: var(--c-lys-tekst-2);
+  }
+
+  .hero__scroll-strek {
+    width: var(--linje-tynn);
+    height: var(--s-6);
+    background: currentColor;
+    opacity: 0.35;
+    animation: puls var(--t-puls) linear infinite;
+  }
+
+  @keyframes puls {
+    0%,
+    20%,
+    100% {
+      opacity: 0.35;
+    }
+    8% {
+      opacity: 1;
+    }
+  }
+
+  /* Starttilstand før intro-animasjonen (settes bare når bevegelse er på) */
+  :global([data-motion='på']) .hero__bilde {
+    transform: scale(1.06);
+  }
+
+  :global([data-motion='på']) .hero__tittel {
+    visibility: hidden;
+  }
+
+  :global([data-motion='på']) .hero__spor line {
+    stroke-dashoffset: 1;
+  }
+
+  @media (min-width: 48rem) {
+    .hero__tekst {
+      left: var(--stasjon-innrykk);
+      right: var(--marg);
+      bottom: var(--s-9);
+    }
+
+    .hero__spor {
+      display: block;
+      position: absolute;
+      left: calc(var(--sporlinje-x) - 1px);
+      bottom: 0;
+      width: 2px;
+      height: 45%;
+      overflow: visible;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    /* Følg 1280 px-rammen på store skjermer */
+    .hero__tekst {
+      left: calc((100% - var(--maks-bredde)) / 2 + var(--stasjon-innrykk));
+    }
+
+    .hero__spor {
+      left: calc((100% - var(--maks-bredde)) / 2 + var(--sporlinje-x) - 1px);
+    }
+  }
+</style>

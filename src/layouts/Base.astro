@@ -34,6 +34,20 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={beskrivelse} />
     <meta property="og:url" content={kanonisk} />
     <meta name="generator" content={Astro.generator} />
+    <script is:inline>
+      // Setter starttilstand for animasjoner før første maling. Reserve: vis alt hvis motion.ts ikke starter.
+      (function () {
+        const rot = document.documentElement;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          rot.dataset.motion = 'av';
+          return;
+        }
+        rot.dataset.motion = 'på';
+        setTimeout(function () {
+          if (!rot.dataset.motionKlar) rot.dataset.motion = 'av';
+        }, 4000);
+      })();
+    </script>
   </head>
   <body>
     <a class="hopp-lenke" href="#innhold">

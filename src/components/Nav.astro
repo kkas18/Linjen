@@ -44,7 +44,7 @@ const erAktiv = (sti: string) => gjeldende.startsWith(url(sti));
   </div>
 </header>
 
-<div class="meny" id="mobilmeny" data-meny data-apen="false">
+<div class="meny" id="mobilmeny" data-meny data-apen="false" data-lenis-prevent>
   <nav aria-label="Mobilmeny">
     <ul class="meny__liste ramme">
       {lenker.map((l) => (
@@ -62,7 +62,7 @@ const erAktiv = (sti: string) => gjeldende.startsWith(url(sti));
   .nav {
     position: fixed;
     inset: 0 0 auto;
-    z-index: 50;
+    z-index: var(--z-nav);
     height: var(--nav-hoyde);
     background: color-mix(in srgb, var(--c-perrong) 92%, transparent);
     backdrop-filter: blur(8px);
@@ -156,7 +156,7 @@ const erAktiv = (sti: string) => gjeldende.startsWith(url(sti));
   .meny {
     position: fixed;
     inset: var(--nav-hoyde) 0 0;
-    z-index: 40;
+    z-index: var(--z-meny);
     background: var(--c-perrong);
     overflow-y: auto;
     clip-path: inset(0 50% 0 50%);

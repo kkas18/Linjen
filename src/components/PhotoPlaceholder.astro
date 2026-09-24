@@ -3,14 +3,17 @@
 interface Props {
   forhold?: string; // f.eks. '3 / 2'
   etikett?: string;
+  tone?: 'lys' | 'mork'; // mørk brukes der lys tekst ligger over (hero)
+  fyll?: boolean; // fyller forelderen i stedet for å bruke `forhold`
+  class?: string;
 }
 
-const { forhold = '3 / 2', etikett } = Astro.props;
+const { forhold = '3 / 2', etikett, tone = 'lys', fyll = false, class: klasse } = Astro.props;
 ---
 
 <div
-  class="plassholder"
-  style={`aspect-ratio: ${forhold}`}
+  class:list={['plassholder', `plassholder--${tone}`, { 'plassholder--fyll': fyll }, klasse]}
+  style={fyll ? undefined : `aspect-ratio: ${forhold}`}
   role="img"
   aria-label={etikett ?? 'Bilde kommer'}
 >
@@ -25,5 +28,15 @@ const { forhold = '3 / 2', etikett } = Astro.props;
     background: var(--c-plassholder);
     color: var(--c-grafitt);
     border-radius: var(--r-bilde);
+  }
+
+  .plassholder--mork {
+    background: var(--c-tunnel-2);
+    color: var(--c-lys-tekst-2);
+    border-radius: var(--r-ingen);
+  }
+
+  .plassholder--fyll {
+    height: 100%;
   }
 </style>
