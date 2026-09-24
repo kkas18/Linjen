@@ -30,6 +30,8 @@ Hvert bilde har de samme feltene, uansett hvor det brukes:
 
 ## 3. Kopier inn der bildet skal brukes
 
+Årstall, navn og tekster i eksemplene er fiktive og viser bare formatet. Bruk kun kvalitetssikrede opplysninger.
+
 ### Epoke: hovedbilde, galleri og før/etter
 
 Fil: `src/content/epoker/<slug>.md`
@@ -37,11 +39,11 @@ Fil: `src/content/epoker/<slug>.md`
 ```yaml
 hovedbilde:
   fil: ../../assets/photos/1875-hest-01.jpg
-  alt: 'Hestetrukket sporvogn på skinner i en gate med trehus'
-  bildetekst: 'Hestesporvogn i Kristiania.'
+  alt: 'Kort beskrivelse av hva bildet viser'
+  bildetekst: 'Bildetekst under fotoet.'
   fotograf: 'Ukjent'
-  ar: 1880
-  arkiv: 'Oslo byarkiv'
+  ar: 1900
+  arkiv: 'Eier eller arkiv'
   lisens: 'CC BY 4.0'
   kilde: 'https://…'
 galleri:
@@ -49,7 +51,7 @@ galleri:
     alt: '…'
     bildetekst: '…'
     fotograf: '…'
-    ar: 1885
+    ar: 1900
     arkiv: '…'
     lisens: 'CC BY 4.0'
     kilde: 'https://…'
@@ -58,15 +60,15 @@ galleri:
     lisens: 'CC BY 4.0'
     kilde: 'https://…'
 forEtter:
-  sted: 'Karl Johans gate, sett mot Slottet'
+  sted: 'Hvilket sted og hvilken retning bildene viser'
   for:
-    fil: ../../assets/photos/1890-karljohan-01.jpg
+    fil: ../../assets/photos/1900-sted-01.jpg
     alt: '…'
-    ar: 1890
+    ar: 1900
     lisens: 'CC BY 4.0'
     kilde: 'https://…'
   etter:
-    fil: ../../assets/photos/2025-karljohan-01.jpg
+    fil: ../../assets/photos/2025-sted-01.jpg
     alt: '…'
     ar: 2025
     lisens: 'CC BY 4.0'
