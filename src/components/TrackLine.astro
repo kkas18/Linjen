@@ -1,0 +1,152 @@
+---
+// Sporlinjen (5.3): SVG-linje i venstre marg på desktop, fremdriftslinje + stasjonsskilt på mobil.
+// Stasjonene legges inn som barn (slot).
+---
+
+<div class="linje" id="stasjoner" data-linje>
+  <svg class="linje__spor" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 2 100">
+    <line class="linje__skinne" x1="1" y1="0" x2="1" y2="100"></line>
+    <line class="linje__passert" x1="1" y1="0" x2="1" y2="100" data-linje-passert></line>
+  </svg>
+
+  <!-- Trikkemerket: enkel geometrisk form, 12 × 28 px -->
+  <svg
+    class="linje__trikk"
+    aria-hidden="true"
+    viewBox="0 0 12 28"
+    width="12"
+    height="28"
+    data-linje-trikk
+  >
+    <rect class="linje__trikk-kropp" x="0" y="0" width="12" height="28"></rect>
+    <rect class="linje__trikk-vindu" x="2" y="3" width="8" height="5"></rect>
+    <rect class="linje__trikk-vindu" x="2" y="20" width="8" height="5"></rect>
+  </svg>
+
+  <slot />
+</div>
+
+<!-- Mobil: fremdriftslinje under navigasjonen og gjeldende stasjon -->
+<div class="fremdrift" aria-hidden="true">
+  <span class="fremdrift__fyll" data-fremdrift></span>
+</div>
+<div class="gjeldende" aria-hidden="true" data-gjeldende>
+  <span class="t-etikett" data-gjeldende-navn></span>
+  <span class="t-mono gjeldende__ar" data-gjeldende-ar></span>
+</div>
+
+<style>
+  .linje {
+    position: relative;
+    width: 100%;
+    max-width: var(--maks-bredde);
+    margin-inline: auto;
+  }
+
+  .linje__spor,
+  .linje__trikk {
+    display: none;
+  }
+
+  .fremdrift {
+    position: fixed;
+    inset: var(--nav-hoyde) 0 auto;
+    z-index: var(--z-fremdrift);
+    height: var(--fremdrift-hoyde);
+    background: var(--c-skinne);
+  }
+
+  .fremdrift__fyll {
+    display: block;
+    height: 100%;
+    background: var(--c-trikkebla);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+
+  .gjeldende {
+    position: fixed;
+    top: calc(var(--nav-hoyde) + var(--fremdrift-hoyde) + var(--s-2));
+    right: var(--marg);
+    z-index: var(--z-fremdrift);
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-2);
+    padding: var(--s-1) var(--s-2);
+    background: var(--c-flate);
+    color: var(--c-grafitt);
+    border: var(--linje-tynn) solid var(--c-grafitt);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--t-rask) var(--ease-out),
+      visibility 0s linear var(--t-rask);
+  }
+
+  .gjeldende[data-synlig='true'] {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity var(--t-rask) var(--ease-out);
+  }
+
+  .gjeldende__ar {
+    font-size: var(--fs-etikett);
+  }
+
+  @media (min-width: 48rem) {
+    .fremdrift,
+    .gjeldende {
+      display: none;
+    }
+
+    .linje__spor {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: calc(var(--sporlinje-x) - 1px);
+      width: 2px;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .linje__spor line {
+      stroke-width: var(--spor-bredde);
+      vector-effect: non-scaling-stroke;
+    }
+
+    .linje__skinne {
+      stroke: var(--c-skinne);
+    }
+
+    .linje__passert {
+      stroke: var(--c-trikkebla);
+      transform: scaleY(0);
+      transform-box: fill-box;
+      transform-origin: 50% 0;
+    }
+
+    .linje__trikk {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: calc(var(--sporlinje-x) - var(--trikk-b) / 2);
+      z-index: 1;
+      width: var(--trikk-b);
+      height: var(--trikk-h);
+    }
+
+    .linje__trikk-kropp {
+      fill: var(--c-trikkebla);
+    }
+
+    .linje__trikk-vindu {
+      fill: var(--c-flate);
+    }
+  }
+
+  /* Uten bevegelse: ingen glidende trikk eller fylt linje */
+  :global([data-motion='av']) .linje__trikk,
+  :global([data-motion='av']) .linje__passert {
+    display: none;
+  }
+</style>

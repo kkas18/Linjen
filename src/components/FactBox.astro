@@ -1,0 +1,49 @@
+---
+// Faktarute (5.2): 2–4 nøkkeltall i Plex Mono. Tall som starter med et siffer telles opp i motion.ts.
+interface Props {
+  fakta: { etikett: string; verdi: string }[];
+}
+
+const { fakta } = Astro.props;
+---
+
+{fakta.length > 0 && (
+  <dl class="fakta" data-fakta>
+    {fakta.map((f) => (
+      <div class="fakta__rad">
+        <dt class="t-etikett fakta__etikett">{f.etikett}</dt>
+        <dd class="t-mono fakta__verdi" data-fakta-verdi>
+          {f.verdi}
+        </dd>
+      </div>
+    ))}
+  </dl>
+)}
+
+<style>
+  .fakta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: var(--s-5);
+    padding-block: var(--s-5);
+    border-block: var(--linje-tynn) solid var(--c-skinne);
+  }
+
+  .fakta__rad {
+    display: grid;
+    gap: var(--s-2);
+    align-content: start;
+  }
+
+  .fakta__etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  .fakta__verdi {
+    margin: 0;
+    font-size: var(--fs-ingress);
+    font-weight: 300;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+</style>

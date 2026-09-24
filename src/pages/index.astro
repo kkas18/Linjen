@@ -1,29 +1,37 @@
 ---
+import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import TrackLine from '../components/TrackLine.astro';
+import Station from '../components/Station.astro';
+
+// Første stasjon teller opp fra dette året (det finnes ingen forrige epoke).
+const START_AR = 1850;
+
+const epoker = (await getCollection('epoker')).sort(
+  (a, b) => a.data.rekkefolge - b.data.rekkefolge,
+);
 ---
 
 <Base
   tittel="Linjen"
   beskrivelse="Historien om hvordan hester, trikker og tog formet Oslo – fortalt stasjon for stasjon."
 >
-  <section class="midlertidig ramme" id="stasjoner">
-    <p class="t-etikett">Sporveien · 1875 – i dag</p>
-    <h1>Linjen gjennom byen</h1>
-    <p class="t-ingress">
-      Historien om hvordan hester, trikker og tog formet Oslo – fortalt stasjon for stasjon.
-    </p>
-  </section>
+  <Hero
+    etikett="Sporveien · 1875 – i dag"
+    tittel="Linjen gjennom byen"
+    ingress="Historien om hvordan hester, trikker og tog formet Oslo – fortalt stasjon for stasjon."
+  />
+
+  <TrackLine>
+    {epoker.map((epoke, i) => (
+      <Station epoke={epoke} fraAr={i === 0 ? START_AR : epoker[i - 1].data.ar} />
+    ))}
+  </TrackLine>
 </Base>
 
-<style>
-  /* Midlertidig forside for fase 0. Erstattes av Hero og stasjoner i fase 1. */
-  .midlertidig {
-    display: grid;
-    gap: var(--s-5);
-    padding-block: var(--s-9);
-  }
+<script>
+  import { initMotion } from '../scripts/motion';
 
-  .midlertidig .t-etikett {
-    color: var(--c-grafitt-2);
-  }
-</style>
+  initMotion();
+</script>

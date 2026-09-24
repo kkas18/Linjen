@@ -1,0 +1,44 @@
+---
+// Signal med tre lamper (5.3). Starter rødt; motion.ts setter data-signal="gronn".
+interface Props {
+  class?: string;
+}
+
+const { class: klasse } = Astro.props;
+---
+
+<span class:list={['signal', klasse]} data-signal="rod" aria-hidden="true">
+  <span class="lampe lampe--rod"></span>
+  <span class="lampe lampe--gul"></span>
+  <span class="lampe lampe--gronn"></span>
+</span>
+
+<style>
+  .signal {
+    display: inline-grid;
+    gap: 3px;
+    justify-items: center;
+    width: var(--signalhus-b);
+    padding-block: 3px;
+    background: var(--c-grafitt);
+  }
+
+  .lampe {
+    width: var(--lampe);
+    height: var(--lampe);
+    border-radius: 50%;
+    background: var(--c-sig-av);
+    transition: background-color var(--t-rask) linear;
+  }
+
+  /* Rød slukker først, så 80 ms mørkt, så tennes grønn – og omvendt */
+  .signal[data-signal='rod'] .lampe--rod {
+    background: var(--c-sig-rod);
+    transition-delay: calc(var(--t-rask) + var(--t-signal-pause));
+  }
+
+  .signal[data-signal='gronn'] .lampe--gronn {
+    background: var(--c-sig-gronn);
+    transition-delay: calc(var(--t-rask) + var(--t-signal-pause));
+  }
+</style>

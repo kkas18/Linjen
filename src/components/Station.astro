@@ -1,0 +1,229 @@
+---
+// Stasjon (5.2): én seksjon per epoke på forsiden.
+import { Picture } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import Signal from './Signal.astro';
+import FactBox from './FactBox.astro';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  epoke: CollectionEntry<'epoker'>;
+  fraAr: number; // året årstallet teller opp fra
+}
+
+const { epoke, fraAr } = Astro.props;
+const { data } = epoke;
+const { Content } = await render(epoke);
+const tekstVenstre = data.rekkefolge % 2 === 1;
+const tittelId = `stasjon-${data.slug}`;
+---
+
+<section
+  class:list={['stasjon', { 'stasjon--speilet': !tekstVenstre }]}
+  id={data.slug}
+  aria-labelledby={tittelId}
+  data-stasjon
+  data-tema={data.tema}
+  data-navn={data.tittel}
+  data-ar={data.ar}
+  data-fra={fraAr}
+>
+  <div class="stasjon__skilt-rad" data-stasjon-skilt-rad>
+    <Signal class="stasjon__signal" />
+    <p class="stasjon__skilt" data-stasjon-skilt>
+      <span class="t-etikett">{data.tittel}</span>
+      <span class="t-mono stasjon__skilt-ar">{data.ar}</span>
+    </p>
+  </div>
+
+  <p class="t-display stasjon__ar" aria-hidden="true" data-stasjon-ar>
+    {data.ar}
+  </p>
+
+  <div class="stasjon__tekst">
+    <h2 id={tittelId}>{data.tittel}</h2>
+    <p class="t-ingress stasjon__ingress">{data.ingress}</p>
+    <div class="stasjon__brod">
+      <Content />
+    </div>
+  </div>
+
+  <figure class="stasjon__figur">
+    <div class="stasjon__bilde" data-stasjon-bilde>
+      <div class="stasjon__bilde-indre" data-stasjon-bilde-indre>
+        {data.hovedbilde ? (
+          <Picture
+            src={data.hovedbilde.fil}
+            alt={data.hovedbilde.alt}
+            formats={['avif', 'webp']}
+            widths={[480, 800, 1200, 1600]}
+            sizes="(min-width: 48rem) 55vw, 100vw"
+            loading="lazy"
+          />
+        ) : (
+          <PhotoPlaceholder forhold="4 / 3" />
+        )}
+      </div>
+    </div>
+    {data.hovedbilde && (
+      <figcaption class="t-bildetekst stasjon__bildetekst">
+        {data.hovedbilde.bildetekst}
+        <span class="stasjon__kreditering">
+          {[data.hovedbilde.fotograf, data.hovedbilde.arkiv, data.hovedbilde.lisens]
+            .filter(Boolean)
+            .join(' · ')}
+        </span>
+      </figcaption>
+    )}
+    {!data.hovedbilde && (
+      <figcaption class="t-bildetekst stasjon__bildetekst">
+        [[TODO: hovedbilde med bildetekst og kreditering]]
+      </figcaption>
+    )}
+  </figure>
+
+  <div class="stasjon__fakta">
+    <FactBox fakta={data.faktaruter} />
+  </div>
+
+  <p class="stasjon__lenke">
+    <a href={url(`/epoker/${data.slug}/`)}>
+      Les mer om epoken <span aria-hidden="true">→</span>
+    </a>
+  </p>
+</section>
+
+<style>
+  .stasjon {
+    position: relative;
+    display: grid;
+    grid-template-areas:
+      'skilt'
+      'ar'
+      'tekst'
+      'figur'
+      'fakta'
+      'lenke';
+    row-gap: var(--s-5);
+    padding: var(--s-9) var(--marg);
+  }
+
+  .stasjon__skilt-rad {
+    grid-area: skilt;
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+
+  .stasjon__skilt {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-3);
+    background: var(--c-flate);
+    color: var(--c-grafitt);
+    border: var(--linje-tynn) solid var(--c-grafitt);
+  }
+
+  .stasjon__skilt-ar {
+    font-size: var(--fs-etikett);
+    font-weight: 300;
+  }
+
+  .stasjon__ar {
+    grid-area: ar;
+    color: var(--c-grafitt);
+  }
+
+  .stasjon__tekst {
+    grid-area: tekst;
+    display: grid;
+    gap: var(--s-5);
+  }
+
+  .stasjon__brod {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .stasjon__figur {
+    grid-area: figur;
+    align-self: start;
+    display: grid;
+    gap: var(--s-3);
+  }
+
+  .stasjon__bilde {
+    overflow: hidden;
+    border-radius: var(--r-bilde);
+  }
+
+  .stasjon__bilde-indre {
+    transform-origin: 50% 50%;
+  }
+
+  .stasjon__bilde :global(img) {
+    width: 100%;
+    filter: grayscale(1);
+  }
+
+  .stasjon__kreditering {
+    display: block;
+  }
+
+  .stasjon__fakta {
+    grid-area: fakta;
+  }
+
+  .stasjon__lenke {
+    grid-area: lenke;
+  }
+
+  .stasjon__lenke a {
+    color: var(--c-trikkebla);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: var(--linje-tynn) solid currentColor;
+    padding-bottom: 2px;
+  }
+
+  .stasjon__lenke a:hover {
+    border-bottom-width: var(--spor-bredde);
+  }
+
+  @media (min-width: 48rem) {
+    .stasjon {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-areas:
+        'skilt skilt'
+        'ar    ar'
+        'tekst figur'
+        'fakta figur'
+        'lenke figur';
+      grid-template-rows: auto auto auto auto 1fr;
+      column-gap: var(--s-8);
+      padding-left: var(--stasjon-innrykk);
+    }
+
+    .stasjon--speilet {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      grid-template-areas:
+        'skilt skilt'
+        'ar    ar'
+        'figur tekst'
+        'figur fakta'
+        'figur lenke';
+    }
+
+    /* Signalet står ved sporlinjen, på høyde med stasjonsskiltet */
+    .stasjon__skilt-rad {
+      position: relative;
+    }
+
+    .stasjon__skilt-rad :global(.stasjon__signal) {
+      position: absolute;
+      left: calc(var(--sporlinje-x) + var(--s-3) - var(--stasjon-innrykk));
+    }
+  }
+</style>
