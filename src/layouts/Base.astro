@@ -7,17 +7,23 @@ import '../styles/tokens.css';
 import '../styles/base.css';
 import '../styles/type.css';
 
+import { pwaInfo } from 'virtual:pwa-info';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import { url } from '../lib/url';
+import { TEMAFARGE } from '../../pwa.config.mjs';
 
 interface Props {
   tittel: string;
   beskrivelse: string;
+  ogBilde?: string; // sti under base, f.eks. 'og/hestesporveien.png'
+  indekser?: boolean; // false = noindex (brukes av interne maler)
 }
 
-const { tittel, beskrivelse } = Astro.props;
+const { tittel, beskrivelse, ogBilde = 'og/forside.png', indekser = true } = Astro.props;
 const fullTittel = tittel === 'Linjen' ? 'Linjen – Sporveiens historie' : `${tittel} · Linjen`;
 const kanonisk = new URL(Astro.url.pathname, Astro.site);
+const ogUrl = new URL(url(`/${ogBilde}`), Astro.site);
 ---
 
 <!doctype html>
@@ -28,11 +34,20 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site);
     <title>{fullTittel}</title>
     <meta name="description" content={beskrivelse} />
     <link rel="canonical" href={kanonisk} />
+    {!indekser && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content={TEMAFARGE} />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={url('/icons/apple-touch-icon.png')} />
+    {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="nb_NO" />
     <meta property="og:title" content={fullTittel} />
     <meta property="og:description" content={beskrivelse} />
     <meta property="og:url" content={kanonisk} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="generator" content={Astro.generator} />
     <script is:inline>
       // Setter starttilstand for animasjoner før første maling. Reserve: vis alt hvis motion.ts ikke starter.
@@ -58,6 +73,12 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     <Footer />
+    <script>
+      // Offline-støtte (PWA): registrer service worker og oppdater automatisk.
+      import { registerSW } from 'virtual:pwa-register';
+
+      registerSW({ immediate: true });
+    </script>
   </body>
 </html>
 

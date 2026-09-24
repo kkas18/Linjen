@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import MaterialCard from '../../components/MaterialCard.astro';
+
+const vogner = (await getCollection('materiell')).sort(
+  (a, b) => a.data.rekkefolge - b.data.rekkefolge,
+);
+---
+
+<Base
+  tittel="Materiell"
+  beskrivelse="Vogner og tog gjennom Sporveiens historie, i kronologisk rekkefølge."
+>
+  <div class="side ramme">
+    <header class="side__hode">
+      <p class="t-etikett side__etikett">Vogner og tog</p>
+      <h1>Materiell</h1>
+      <p class="t-ingress">Vogntypene gjennom tidene, i kronologisk rekkefølge.</p>
+    </header>
+    <ol class="rutenett">
+      {vogner.map((vogn) => (
+        <MaterialCard vogn={vogn} />
+      ))}
+    </ol>
+  </div>
+</Base>
+
+<style>
+  .side {
+    display: grid;
+    gap: var(--s-8);
+    padding-block: var(--s-8) var(--s-9);
+  }
+
+  .side__hode {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .side__etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  .rutenett {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: var(--s-5);
+    list-style: none;
+    padding: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .side {
+      padding-left: var(--stasjon-innrykk);
+    }
+  }
+</style>

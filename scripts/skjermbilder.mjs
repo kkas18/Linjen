@@ -48,6 +48,9 @@ const undersider = [
     },
   },
   { navn: 'signal', sti: 'signal/' },
+  { navn: 'materiell', sti: 'materiell/' },
+  { navn: 'kilder', sti: 'kilder/' },
+  { navn: 'om', sti: 'om/' },
 ];
 
 async function ventPaServer() {

@@ -29,7 +29,7 @@ const { data } = epoke;
 const { Content } = await render(epoke);
 ---
 
-<Base tittel={data.tittel} beskrivelse={data.ingress}>
+<Base tittel={data.tittel} beskrivelse={data.ingress} ogBilde={`og/${data.slug}.png`}>
   <Hero
     kompakt
     etikett={data.etikett}

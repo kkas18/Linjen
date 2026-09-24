@@ -9,6 +9,7 @@ const bilde = ({ image }: SchemaContext) =>
     alt: z.string().min(1, 'Bildet mangler alt-tekst'),
     bildetekst: z.string().optional(),
     fotograf: z.string().optional(),
+    ar: z.number().int().optional(), // fotoår (6.4)
     arkiv: z.string().optional(),
     lisens: z.string().min(1, 'Bildet mangler lisens'),
     kilde: z.url('Bildet mangler gyldig kilde-URL'),
