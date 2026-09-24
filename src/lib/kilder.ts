@@ -2,7 +2,7 @@
 import { z } from 'astro/zod';
 import data from '../data/kilder.json';
 import { ordbok, rute, type Lang } from '../i18n';
-import { hentEpoker, hentMateriell, hentSignal } from './epoker';
+import { hentEpoker, hentForsidebilde, hentMateriell, hentSignal } from './epoker';
 
 const kilde = z.object({
   forfatter: z.string().optional(),
@@ -44,6 +44,7 @@ export async function alleKrediteringer(lang: Lang = 'nb'): Promise<Kreditering[
     liste.push({ alt, fotograf, ar, arkiv, lisens, kilde, brukt: { tekst, href } });
   };
 
+  legg(await hentForsidebilde(lang), t.forside, rute(lang, 'forside'));
   for (const e of await hentEpoker(lang)) {
     const href = rute(lang, 'epoke', e.data.slug);
     legg(e.data.hovedbilde, e.data.tittel, href);

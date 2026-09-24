@@ -154,6 +154,7 @@ export const en: Ordbok = {
     etter: 'after',
     signal: 'Signalling',
     materiell: 'Rolling stock',
+    forside: 'Front page',
   },
   om: {
     sideTittel: 'About this site',

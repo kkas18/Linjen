@@ -46,6 +46,21 @@ export async function hentMateriell(lang: Lang = 'nb') {
   return etterRekkefolge(await getCollection(lang === 'en' ? 'materiellEn' : 'materiell'));
 }
 
+/**
+ * Forsidebildet (5.1), på valgt språk. Bygget stopper hvis bildet bare finnes på ett språk,
+ * så norsk og engelsk forside alltid viser det samme.
+ */
+export async function hentForsidebilde(lang: Lang = 'nb') {
+  const nb = (await getCollection('forside'))[0]?.data.hovedbilde;
+  const en = (await getCollection('forsideEn'))[0]?.data.hovedbilde;
+  if (Boolean(nb) !== Boolean(en)) {
+    throw new Error(
+      `Forsidebildet mangler i ${nb ? 'src/content/en/forside/forside.md' : 'src/content/forside/forside.md'}`,
+    );
+  }
+  return lang === 'en' ? en : nb;
+}
+
 /** Året slik det vises i stasjonsskilt og etiketter. */
 export function arTekst(data: Stasjon['data']): string {
   return data.arVisning ?? String(data.ar ?? '');
