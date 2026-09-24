@@ -108,7 +108,48 @@ Hvert `id` i `nettverk.json` må ha et navn i `nettverk.en.json`, ellers stopper
 
 Egennavn beholdes, for eksempel `Holmenkolbanen`. Forklarende tekst oversettes.
 
-## 6. Hva bygget sjekker, og hva det ikke sjekker
+## 6. Skriveråd for tekstene på kartet
+
+Kartet har tre slags tekst, og de ligger på tre forskjellige steder:
+
+| Tekst                                                  | Hvor den ligger                                    | Mal                       |
+| ------------------------------------------------------ | -------------------------------------------------- | ------------------------- |
+| Segmentnavn (vises når musepekeren står over en linje) | `navn` i `nettverk.json` og `nettverk.en.json`     | dette punktet             |
+| Hendelsen ved siden av kartet                          | Tittel og ingress fra epoken som gjaldt i valgt år | `docs/epoke-mal.md`       |
+| Overskrift, innledning, knapper og forklaring          | `nettverk.*` i `src/i18n/nb.ts` og `en.ts`         | `docs/sidetekster-mal.md` |
+
+### Segmentnavn
+
+Når musepekeren står over en linje, vises navnet slik: **«navn (åpnet–nedlagt)»**. Årstallene legges til automatisk.
+
+- **Ikke skriv årstall i navnet.** De kommer fra `apnet` og `nedlagt`. Står de i navnet også, vises de to ganger.
+- **Bruk det etablerte navnet** når strekningen har et, for eksempel navnet på en bane eller tunnel. Egennavn skrives slik de er, og oversettes ikke.
+- **Ellers beskriver du strekningen med endepunktene:** «[Type] [fra]–[til]», med tankestrek (–) uten mellomrom mellom stedene.
+- **Etapper:** Legg til «, 1. etappe», «, 2. etappe» osv. etter navnet.
+- **Kort:** opptil ca. 50 tegn. Navnet skal kunne leses i et lite verktøytips.
+- **Ingen vurderinger eller forklaringer.** Historien hører hjemme i epoketekstene.
+- **Plassholdere:** Mens et segment ikke er kvalitetssikret, kan navnet merkes «(skjematisk)» eller skrives som `[[TODO: navn]]`.
+
+> Startdataene som ligger inne nå, følger ikke disse rådene fullt ut. For eksempel har ett navn årstall i parentes. De skal uansett erstattes med kvalitetssikrede data.
+
+| Unngå                               | Bedre (mønster)      |
+| ----------------------------------- | -------------------- |
+| «[Navn] (1900–1950)»                | «[Navn]»             |
+| «Den viktige nye linjen til [sted]» | «[Type] [fra]–[til]» |
+| «Linje fra [fra] til [til] via …»   | «[Type] [fra]–[til]» |
+
+### Engelske segmentnavn
+
+- Egennavn beholdes. Bare typen eller beskrivelsen oversettes, for eksempel «Tunnel [fra]–[til]» og «Metro [fra]–[til]».
+- Bruk de samme engelske ordene som forklaringen på kartet (`nettverk.typer` i `en.ts`): _Horse tramway_, _Tram_, _Suburban railway_ og _Metro (T-bane)_.
+- «1. etappe» blir «stage 1».
+
+### Sammenhengen mellom kart og epoker
+
+- **Teksten ved siden av kartet** viser epoken med høyest årstall som ikke er senere enn valgt år. Vil du at kartet skal vise en bestemt hendelse, må den ha sin egen epoke.
+- **Årstallene** i `nettverk.json` og i epokene bør stemme overens. Åpner en strekning i et år der en ny epoke starter, bør epoketeksten nevne den.
+
+## 7. Hva bygget sjekker, og hva det ikke sjekker
 
 **Bygget stopper ved:**
 
@@ -123,7 +164,7 @@ Egennavn beholdes, for eksempel `Holmenkolbanen`. Forklarende tekst oversettes.
 - at linjene faktisk følger 45°/90°-regelen og treffer hverandre i kryssene
 - at år og navn stemmer med kildene
 
-## 7. Se resultatet
+## 8. Se resultatet
 
 ```bash
 npm run dev
@@ -134,12 +175,13 @@ npm run dev
 - Hold musepekeren over en linje for å se navnet og årene.
 - Sjekk både norsk og engelsk (`/en/network/`), og både mobil og desktop.
 
-## 8. Sjekkliste før du committer
+## 9. Sjekkliste før du committer
 
 - [ ] Hvert segment har unikt `id`, riktig `type` og kvalitetssikret `apnet` og `nedlagt`.
 - [ ] `path` bruker bare `M`, `H`, `V`, `L` og holder seg til 45°/90°.
 - [ ] Segmenter som skal møtes, har nøyaktig samme koordinat i møtepunktet.
 - [ ] Alle `id` har engelsk navn i `nettverk.en.json`.
+- [ ] Navnene har ikke årstall og er opptil ca. 50 tegn. Egennavn er beholdt på engelsk.
 - [ ] De forenklede startsegmentene er fjernet eller erstattet.
 - [ ] `npm run check` og `npm run build` er grønne.
 - [ ] Kilden for årstallene står i `src/data/kilder.json`.
