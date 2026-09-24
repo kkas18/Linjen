@@ -27,12 +27,64 @@ Kortene vises i kronologisk rekkefølge, sortert etter feltet `rekkefolge`.
 | `type`       | ja      | Typebetegnelse, vist i Plex Mono. Ikke oversett den.              | `'EKS-100'`              |
 | `iDrift`     | ja      | Årene vogntypen var i drift, med tankestrek.                      | `'1900–1950'`, `'2020–'` |
 | `setning`    | ja      | Én setning om vogntypen, opptil ca. 140 tegn.                     | `'…'`                    |
-| `bilde`      | nei     | Foto av vogntypen. Uten bilde vises plassholderen «Bilde kommer». | se punkt 4               |
+| `bilde`      | nei     | Foto av vogntypen. Uten bilde vises plassholderen «Bilde kommer». | se punkt 5               |
 
 - Det er bare disse feltene som vises på kortet. Tekst under `---` brukes ikke.
 - Alt som ikke er kvalitetssikret, skal stå som `[[TODO: …]]` (CLAUDE.md regel 3).
 
-## 3. Eksempel: et komplett par
+## 3. Skriveråd for `setning`
+
+`setning` er den eneste løpende teksten på kortet. Typebetegnelse og årene i drift står allerede over den, så setningen skal si **det som skiller vogntypen fra de andre**.
+
+### Hva setningen bør si
+
+Velg **én** av disse, den viktigste:
+
+| Vinkel                            | Mønster                                                  |
+| --------------------------------- | -------------------------------------------------------- |
+| Hva som var nytt                  | «Den første vogntypen med [nyhet].»                      |
+| Hvor og hvordan den ble brukt     | «Bygget for [strekning/bruk], der den gikk i [periode].» |
+| Hva den erstattet eller førte til | «Erstattet [eldre type] og innførte [endring].»          |
+| Hva som gjør den gjenkjennelig    | «Kjent for [kjennetegn], som [kort forklaring].»         |
+
+Klammene viser hvor de kvalitetssikrede opplysningene skal inn. Fyll bare inn det kildene bekrefter (CLAUDE.md regel 3). Ellers skriver du `[[TODO: én setning om vogntypen.]]`.
+
+### Form
+
+- **Én setning,** avsluttet med punktum. Opptil ca. 140 tegn, så teksten får plass på kortet på mobil.
+- **Ikke gjenta** typebetegnelsen eller årene i drift. Begge står allerede på kortet.
+- **Tid:** fortid for vogntyper som er ute av drift, nåtid for dem som fortsatt går.
+- **Tall:** sifre for mål og antall (`32 meter`, `60 vogner`), mellomrom som tusenskille (`1 200`).
+- **Typebetegnelser:** skrives slik de er offisielt, og oversettes ikke.
+- **Egennavn** som `Holmenkolbanen` og `Kristiania Sporveisselskab` beholdes også i engelsk tekst.
+
+### Tone
+
+Presist og nøkternt, som en god museumsskilt-tekst. Beskriv hva vognen var og gjorde, ikke hva man bør mene om den.
+
+| Unngå                                           | Hvorfor                                                          |
+| ----------------------------------------------- | ---------------------------------------------------------------- |
+| «Et legendarisk og elsket tog.»                 | Vurdering uten innhold og uten kilde                             |
+| «T-banevogn.»                                   | Sier ikke mer enn kortet allerede gjør                           |
+| «EKS-100 (1900–1950) var …»                     | Gjentar typen og årene som står over                             |
+| «Den gikk på linje 1, 2, 3, 4 og 5, og hadde …» | Opplisting. Velg det viktigste.                                  |
+| «Trolig den første …»                           | Usikre opplysninger skal kvalitetssikres eller merkes `[[TODO]]` |
+
+**Godt mønster (fiktivt):**
+
+> «Den første vogntypen med [nyhet], bygget for [strekning].»
+
+### Engelsk versjon
+
+- Samme innhold, men skriv naturlig britisk engelsk i stedet for å oversette ord for ord.
+- Samme lengdegrense (ca. 140 tegn).
+- Mål og tall skrives likt (`32 metres`, `60 cars`). Typebetegnelsen er den samme.
+
+**Mønster (fiktivt):**
+
+> «The first type with [innovation], built for [route].»
+
+## 4. Eksempel: et komplett par
 
 **Norsk:** `src/content/materiell/materiell-03.md`
 
@@ -82,14 +134,14 @@ bilde:
 - Stien til bildet har ett `../` ekstra i den engelske filen, fordi den ligger én mappe dypere.
 - Alt annet er likt.
 
-## 4. Bildet
+## 5. Bildet
 
 - **Plassering og navn:** Legg fotoet i `src/assets/photos/` med navn etter regelen `ÅR-emne-NN.jpg`, for eksempel `1900-eks100-01.jpg`.
 - **Utsnitt:** Kortet viser bildet i 4:3, beskåret fra midten. Velg et foto der vognen står midt i bildet. Minst 640 px bredde holder.
 - **Feltene:** `alt`, `lisens` og `kilde` er påkrevd, ellers stopper bygget. Se `docs/bilder-mal.md` for alle bildefeltene.
 - **`kilde`:** Må være en fullstendig URL. Plassholderen `'https://…'` i eksemplet stopper bygget med vilje til den er byttet ut.
 
-## 5. Plassholderne som finnes nå
+## 6. Plassholderne som finnes nå
 
 `materiell-01.md` til `materiell-06.md` er plassholdere med `[[TODO]]`. Du kan gjøre ett av to:
 
@@ -98,11 +150,11 @@ bilde:
 
 Det kan være så mange kort du vil. På desktop festes stripen og glir sidelengs med scroll, og på mobil sveiper man.
 
-## 6. Endre rekkefølgen
+## 7. Endre rekkefølgen
 
 Det er bare `rekkefolge` som styrer rekkefølgen. Du trenger ikke endre filnavnene. Vil du sette inn en vogntype mellom 3 og 4, bruker du for eksempel 4 og øker tallet for de som kommer etter, på begge språk. Rekkefølgen skal være kronologisk etter når vogntypen ble satt i drift.
 
-## 7. Sjekk før du committer
+## 8. Sjekk før du committer
 
 ```bash
 npm run check    # fanger manglende felt og feil bildesti
@@ -111,7 +163,7 @@ npm run dev      # se kortene på / og /materiell/ (og /en/rolling-stock/)
 ```
 
 - [ ] Både den norske og den engelske filen finnes, med samme `rekkefolge`, `type` og `iDrift`.
-- [ ] `setning` er én setning, og alle fakta er kvalitetssikret.
+- [ ] `setning` er én setning på opptil ca. 140 tegn, gjentar ikke typen eller årene, og alle fakta er kvalitetssikret.
 - [ ] Bildet (hvis det er med) har `alt`, `lisens` og `kilde`, og riktig sti på begge språk.
 - [ ] Plassholdere du ikke skal bruke, er slettet i begge språk.
 - [ ] Kortene står i riktig rekkefølge på forsiden og på `/materiell/`.
