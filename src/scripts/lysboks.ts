@@ -37,10 +37,11 @@ export function initLysboks(dialog: HTMLDialogElement): void {
       const plass = document.createElement('div');
       plass.className = 'lysboks__plassholder';
       plass.setAttribute('role', 'img');
-      plass.setAttribute('aria-label', b.alt || 'Bilde kommer');
+      const kommer = dialog.dataset.bildeKommer ?? '';
+      plass.setAttribute('aria-label', b.alt || kommer);
       const etikett = document.createElement('span');
       etikett.className = 't-etikett';
-      etikett.textContent = 'Bilde kommer';
+      etikett.textContent = kommer;
       plass.append(etikett);
       flate!.append(plass);
     }

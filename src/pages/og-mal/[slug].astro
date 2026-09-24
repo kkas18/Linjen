@@ -7,22 +7,39 @@ import '@fontsource/ibm-plex-sans/600.css';
 import '@fontsource/ibm-plex-mono/300.css';
 import '../../styles/tokens.css';
 import { arTekst, hentEpoker } from '../../lib/epoker';
+import { ordbok, SPRAK } from '../../i18n';
 
+// Én mal per epoke og forside, på begge språk. Engelske bilder får prefikset «en-».
 export const getStaticPaths = (async () => {
-  const epoker = await hentEpoker();
-  return [
-    {
-      params: { slug: 'forside' },
-      props: { etikett: 'Sporveien · 1875 – i dag', ar: '', tittel: 'Linjen gjennom byen' },
-    },
-    ...epoker.map((e) => ({
-      params: { slug: e.data.slug },
-      props: { etikett: e.data.etikett, ar: arTekst(e.data), tittel: e.data.tittel },
-    })),
-  ];
+  const sider = [];
+  for (const lang of SPRAK) {
+    const t = ordbok(lang);
+    const prefiks = lang === 'en' ? 'en-' : '';
+    sider.push({
+      params: { slug: `${prefiks}forside` },
+      props: {
+        etikett: t.forside.etikett,
+        ar: '',
+        tittel: t.forside.h1,
+        merke: t.bunn.undertittel,
+      },
+    });
+    for (const e of await hentEpoker(lang)) {
+      sider.push({
+        params: { slug: `${prefiks}${e.data.slug}` },
+        props: {
+          etikett: e.data.etikett,
+          ar: arTekst(e.data),
+          tittel: e.data.tittel,
+          merke: t.bunn.undertittel,
+        },
+      });
+    }
+  }
+  return sider;
 }) satisfies GetStaticPaths;
 
-const { etikett, ar, tittel } = Astro.props;
+const { etikett, ar, tittel, merke } = Astro.props;
 // Lange årstall («1945–1960-tallet») og titler skaleres ned så alt får plass i 1200 × 630.
 const arStorrelse = ar.length > 6 ? 84 : 132;
 const tittelStorrelse = tittel.length > 24 ? 56 : 72;
@@ -52,7 +69,7 @@ const tittelStorrelse = tittel.length > 24 ? 56 : 72;
         </h1>
       </div>
       <p class="og__merke">
-        Linjen <span>· Sporveiens historie</span>
+        Linjen <span>· {merke}</span>
       </p>
     </main>
   </body>

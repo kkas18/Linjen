@@ -12,6 +12,18 @@ const SIDER = [
   'om/',
 ];
 
+const SIDER_EN = [
+  'en/',
+  'en/eras/hestesporveien/',
+  'en/eras/t-banen/',
+  'en/eras/framtiden/',
+  'en/network/',
+  'en/signalling/',
+  'en/rolling-stock/',
+  'en/sources/',
+  'en/about/',
+];
+
 const BREDDER = [360, 390, 768, 1280, 1920];
 
 /** Samler JS-feil på siden. */
@@ -47,12 +59,74 @@ test.describe('alle sider', () => {
   });
 });
 
+test.describe('engelsk versjon (fase 5)', () => {
+  for (const sti of SIDER_EN) {
+    test(`/${sti} laster riktig på engelsk`, async ({ page }) => {
+      const feil = feilfanger(page);
+      const svar = await page.goto(sti);
+      expect(svar?.status()).toBe(200);
+      await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+      await expect(page.locator('h1')).toHaveCount(1);
+      await expect(page.locator('link[rel="alternate"][hreflang="nb"]')).toHaveCount(1);
+      await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveCount(1);
+      expect(await page.locator('img:not([alt])').count()).toBe(0);
+      expect(feil).toEqual([]);
+    });
+  }
+
+  test('titlene er unike på tvers av språk', async ({ page }) => {
+    const titler = new Set<string>();
+    for (const sti of [...SIDER, ...SIDER_EN]) {
+      await page.goto(sti);
+      titler.add(await page.title());
+    }
+    expect(titler.size).toBe(SIDER.length + SIDER_EN.length);
+  });
+
+  test('språkvelgeren går til samme side på det andre språket', async ({ page }) => {
+    await page.goto('epoker/ringen/');
+    await page.locator('.nav__sprak').click();
+    await expect(page).toHaveURL(/\/en\/eras\/ringen\/$/);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('h1')).toHaveText('The Ring');
+    await page.locator('.nav__sprak').click();
+    await expect(page).toHaveURL(/\/epoker\/ringen\/$/);
+    await expect(page.locator('h1')).toHaveText('Ringen');
+  });
+
+  test('engelsk nettverkskart viser engelske hendelser og knapper', async ({ page }) => {
+    await page.goto('en/network/');
+    const glider = page.locator('[data-nettverk-glider]');
+    await glider.fill('1900');
+    await glider.dispatchEvent('change');
+    await expect(page.locator('[data-nettverk-epoke-tittel]')).toHaveText('Railways to the hills');
+    await expect(page.locator('[data-nettverk-status]')).toContainText('lines in service');
+    const spill = page.locator('[data-nettverk-spill]');
+    await expect(spill).toHaveText('Play');
+    await spill.click();
+    await expect(spill).toHaveText('Pause');
+    await spill.click();
+  });
+
+  test('sitemap har begge språk med hreflang', async ({ request, baseURL }) => {
+    const sitemap = await (await request.get(`${baseURL}sitemap.xml`)).text();
+    expect(sitemap).toContain('/en/eras/hestesporveien/');
+    expect(sitemap).toContain('hreflang="en"');
+  });
+
+  test('404 er tospråklig', async ({ page }) => {
+    await page.goto('en/finnes-ikke/');
+    await expect(page.locator('h1')).toHaveText('Denne siden finnes ikke');
+    await expect(page.locator('.feil__en')).toContainText('This page does not exist');
+  });
+});
+
 test.describe('responsivt', () => {
   test.skip(({ isMobile }) => isMobile, 'bredder testes fra desktop-prosjektet');
   for (const bredde of BREDDER) {
     test(`ingen horisontal scroll ved ${bredde} px`, async ({ page }) => {
       await page.setViewportSize({ width: bredde, height: 900 });
-      for (const sti of SIDER) {
+      for (const sti of [...SIDER, ...SIDER_EN]) {
         await page.goto(sti);
         await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
         const bredt = await page.evaluate(() => document.documentElement.scrollWidth);

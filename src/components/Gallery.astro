@@ -4,6 +4,7 @@ import { Picture, getImage } from 'astro:assets';
 import type { Stasjon } from '../lib/epoker';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
 import Lightbox, { type LysboksBilde } from './Lightbox.astro';
+import { ordbok, sprak } from '../i18n';
 
 interface Props {
   bilder: Stasjon['data']['galleri'];
@@ -11,6 +12,8 @@ interface Props {
 }
 
 const { bilder, id = 'lysboks' } = Astro.props;
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang);
 const plassholdere = bilder.length === 0;
 
 const kreditering = (b: (typeof bilder)[number]) =>
@@ -20,8 +23,8 @@ const kreditering = (b: (typeof bilder)[number]) =>
 const lysboks: LysboksBilde[] = plassholdere
   ? [1, 2, 3].map((n) => ({
       src: null,
-      alt: `Bilde kommer (${n} av 3)`,
-      bildetekst: '[[TODO: galleribilde med kreditering]]',
+      alt: `${t.felles.bildeKommer} (${n} / 3)`,
+      bildetekst: t.felles.todoGalleribilde,
       kreditering: '',
     }))
   : await Promise.all(
@@ -42,7 +45,7 @@ const lysboks: LysboksBilde[] = plassholdere
             <button
               class="galleri__knapp"
               type="button"
-              aria-label={`Vis større: ${b.alt}`}
+              aria-label={`${t.epoke.visStorre}: ${b.alt}`}
               data-lysboks-apne={i}
               data-lysboks-mal={id}
             >
@@ -58,7 +61,7 @@ const lysboks: LysboksBilde[] = plassholdere
             <button
               class="galleri__knapp"
               type="button"
-              aria-label={`Vis større: ${b.alt}`}
+              aria-label={`${t.epoke.visStorre}: ${b.alt}`}
               data-lysboks-apne={i}
               data-lysboks-mal={id}
             >

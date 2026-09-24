@@ -121,3 +121,18 @@ Kontrast, beregnet fra tokens.css:
 6. **Signalbildene i demoen:** Bekreft dem, eller lever de riktige signalbildene for Sporveien.
 7. **GitHub Pages:** Slå på under Settings → Pages → Source: «GitHub Actions».
 8. **Etter lansering:** Mål LCP på nytt med ekte hero-foto, og test med skjermleser.
+
+## Tillegg – Fase 5 (engelsk versjon)
+
+Målt 24.09.2026 etter at den engelske versjonen kom på plass.
+
+- ✅ **Oppsett:** Astro i18n med `nb` som standardspråk på dagens adresser og `en` under `/en/`. Sidene har engelske navn: `/en/eras/[slug]/`, `/en/network/`, `/en/signalling/`, `/en/rolling-stock/`, `/en/sources/` og `/en/about/`.
+- ✅ **Innhold i egne filer:** `src/content/en/{epoker,signal,materiell}` og `src/data/nettverk.en.json`. Bygget stopper hvis en epoke eller et nettverkssegment mangler motpart på det andre språket.
+- ✅ **Grensesnitt:** Alle tekster ligger i `src/i18n/nb.ts` og `en.ts` (britisk engelsk). TypeScript sørger for at begge ordbøkene har de samme nøklene.
+- ✅ **Språkinformasjon:** `lang="en"`, `og:locale en_GB` og `hreflang`-alternativer med `x-default` på alle sider. Sitemapen har `xhtml:link` for begge språk, og det finnes engelske OG-bilder (`og/en-*.png`).
+- ✅ **Språkvelger:** Går til samme side på det andre språket. Det tilgjengelige navnet («Norsk (NB)» / «English (EN)») inneholder den synlige teksten (WCAG 2.5.3).
+- ✅ **404:** Siden er tospråklig, fordi GitHub Pages har én 404-side for hele nettstedet.
+- ✅ **Lighthouse mobil:** `/en/` og `/en/eras/hestesporveien/` får 95–100 i Ytelse og 100 i Tilgjengelighet, Beste praksis og SEO.
+- ✅ **Playwright:** 72 tester er bestått, inkludert alle engelske sider, språkvelgeren, det engelske nettverkskartet, sitemap og 404.
+- 🟡 **Oversettelsen:** Gjort fra de norske tekstene uten nye fakta, og `[[TODO]]` er beholdt der innholdet mangler. Den bør leses gjennom av eier eller en annen før lansering.
+- 🟡 **Epoke-slugs:** Er de samme på begge språk, for eksempel `/en/eras/elektrisk-trikk/`, fordi det er de som kobler hver engelsk side til sin norske motpart.

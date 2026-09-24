@@ -1,29 +1,16 @@
 ---
 // Pedagogisk signal (6.2): klikk gjennom Stopp → Kjør med redusert hastighet → Kjør.
 // Forenklet: generelle signalbilder, ikke Sporveiens eksakte signalbilder.
-const bilder = [
-  {
-    tilstand: 'rod',
-    navn: 'Stopp',
-    forklaring: 'Toget skal stoppe foran signalet.',
-  },
-  {
-    tilstand: 'gul',
-    navn: 'Kjør med redusert hastighet',
-    forklaring: 'Toget kan kjøre forbi signalet, men med redusert hastighet.',
-  },
-  {
-    tilstand: 'gronn',
-    navn: 'Kjør',
-    forklaring: 'Toget kan kjøre forbi signalet med tillatt hastighet.',
-  },
-];
+import { ordbok, sprak } from '../i18n';
+
+const t = ordbok(sprak(Astro.currentLocale)).signal;
+const bilder = t.bilder;
 ---
 
 <section class="demo" aria-labelledby="demo-tittel" data-signal-demo>
   <div class="demo__hode">
-    <p class="t-etikett demo__merke">Forenklet – generelle signalbilder</p>
-    <h2 id="demo-tittel">Prøv et signal</h2>
+    <p class="t-etikett demo__merke">{t.demoMerke}</p>
+    <h2 id="demo-tittel">{t.demoTittel}</h2>
   </div>
 
   <div class="demo__innhold">
@@ -44,7 +31,7 @@ const bilder = [
         {bilder[0].forklaring}
       </p>
       <button class="demo__knapp t-etikett" type="button" data-demo-knapp>
-        Neste signalbilde <span aria-hidden="true">→</span>
+        {t.demoKnapp} <span aria-hidden="true">→</span>
       </button>
     </div>
   </div>

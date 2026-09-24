@@ -1,8 +1,8 @@
 // Kilder og bildekreditering (6.4), samlet automatisk fra innholdsfilene.
 import { z } from 'astro/zod';
-import { getCollection } from 'astro:content';
 import data from '../data/kilder.json';
-import { url } from './url';
+import { ordbok, rute, type Lang } from '../i18n';
+import { hentEpoker, hentMateriell, hentSignal } from './epoker';
 
 const kilde = z.object({
   forfatter: z.string().optional(),
@@ -34,8 +34,9 @@ type Bilde = {
   kilde: string;
 };
 
-/** Alle bilder i innholdet med kreditering og hvor de er brukt. */
-export async function alleKrediteringer(): Promise<Kreditering[]> {
+/** Alle bilder i innholdet med kreditering og hvor de er brukt, på valgt språk. */
+export async function alleKrediteringer(lang: Lang = 'nb'): Promise<Kreditering[]> {
+  const t = ordbok(lang).kilder;
   const liste: Kreditering[] = [];
   const legg = (b: Bilde | undefined, tekst: string, href: string) => {
     if (!b) return;
@@ -43,18 +44,18 @@ export async function alleKrediteringer(): Promise<Kreditering[]> {
     liste.push({ alt, fotograf, ar, arkiv, lisens, kilde, brukt: { tekst, href } });
   };
 
-  for (const e of await getCollection('epoker')) {
-    const href = url(`/epoker/${e.data.slug}/`);
+  for (const e of await hentEpoker(lang)) {
+    const href = rute(lang, 'epoke', e.data.slug);
     legg(e.data.hovedbilde, e.data.tittel, href);
-    e.data.galleri.forEach((b) => legg(b, `${e.data.tittel} (galleri)`, href));
-    legg(e.data.forEtter?.for, `${e.data.tittel} (før)`, href);
-    legg(e.data.forEtter?.etter, `${e.data.tittel} (etter)`, href);
+    e.data.galleri.forEach((b) => legg(b, `${e.data.tittel} (${t.galleri})`, href));
+    legg(e.data.forEtter?.for, `${e.data.tittel} (${t.for})`, href);
+    legg(e.data.forEtter?.etter, `${e.data.tittel} (${t.etter})`, href);
   }
-  for (const s of await getCollection('signal')) {
-    legg(s.data.hovedbilde, `Signal: ${s.data.tittel}`, url('/signal/'));
+  for (const s of await hentSignal(lang)) {
+    legg(s.data.hovedbilde, `${t.signal}: ${s.data.tittel}`, rute(lang, 'signal'));
   }
-  for (const m of await getCollection('materiell')) {
-    legg(m.data.bilde, `Materiell: ${m.data.type}`, url('/materiell/'));
+  for (const m of await hentMateriell(lang)) {
+    legg(m.data.bilde, `${t.materiell}: ${m.data.type}`, rute(lang, 'materiell'));
   }
   return liste;
 }

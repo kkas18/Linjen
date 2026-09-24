@@ -1,0 +1,16 @@
+---
+// /en/eras/[slug]/ (en). Innholdet ligger i src/views/Epokeside.astro og er felles for nb og en.
+import type { GetStaticPaths } from 'astro';
+import Epokeside from '../../../views/Epokeside.astro';
+import { hentEpoker } from '../../../lib/epoker';
+
+export const getStaticPaths = (async () => {
+  const epoker = await hentEpoker('en');
+  return epoker.map((epoke, i) => ({
+    params: { slug: epoke.data.slug },
+    props: { epoke, forrige: epoker[i - 1], neste: epoker[i + 1] },
+  }));
+}) satisfies GetStaticPaths;
+---
+
+<Epokeside {...Astro.props} />

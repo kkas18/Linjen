@@ -1,6 +1,8 @@
 // Nettverksdata (6.1), validert ved bygg så feil i data stopper bygget.
 import { z } from 'astro/zod';
 import data from '../data/nettverk.json';
+import navnEn from '../data/nettverk.en.json';
+import type { Lang } from '../i18n';
 
 export const TYPER = ['hest', 'trikk', 'forstadsbane', 'tbane'] as const;
 
@@ -22,9 +24,14 @@ export type Segment = z.infer<typeof segment>;
 
 export const segmenter: Segment[] = z.array(segment).parse(data);
 
-export const TYPENAVN: Record<(typeof TYPER)[number], string> = {
-  hest: 'Hestesporvei',
-  trikk: 'Trikk',
-  forstadsbane: 'Forstadsbane',
-  tbane: 'T-bane',
-};
+// Engelske segmentnavn ligger i egen fil (nettverk.en.json), nøklet på id.
+const engelsk = z.record(z.string(), z.string()).parse(navnEn);
+const manglerEngelsk = segmenter.filter((s) => !engelsk[s.id]).map((s) => s.id);
+if (manglerEngelsk.length) {
+  throw new Error(`nettverk.en.json mangler navn for: ${manglerEngelsk.join(', ')}`);
+}
+
+/** Segmentnavn på valgt språk. */
+export function segmentnavn(s: Segment, lang: Lang): string {
+  return lang === 'en' ? engelsk[s.id] : s.navn;
+}

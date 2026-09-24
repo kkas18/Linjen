@@ -1,24 +1,27 @@
 ---
-import { url } from '../lib/url';
+import { ordbok, rute, sprak } from '../i18n';
+
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang).bunn;
 ---
 
 <footer class="bunn">
   <div class="bunn__indre ramme">
     <div>
       <p class="bunn__ordmerke">Linjen</p>
-      <p class="t-bildetekst">Sporveiens historie 1875 – i dag</p>
+      <p class="t-bildetekst">{t.undertittel}</p>
     </div>
-    <nav aria-label="Bunnmeny">
+    <nav aria-label={t.meny}>
       <ul class="bunn__liste">
         <li>
-          <a href={url('/kilder/')}>Kilder og bildekreditering</a>
+          <a href={rute(lang, 'kilder')}>{t.kilder}</a>
         </li>
         <li>
-          <a href={url('/om/')}>Om nettstedet</a>
+          <a href={rute(lang, 'om')}>{t.om}</a>
         </li>
       </ul>
     </nav>
-    <p class="bunn__merknad t-bildetekst">Ingen informasjonskapsler. Ingen sporing.</p>
+    <p class="bunn__merknad t-bildetekst">{t.personvern}</p>
   </div>
 </footer>
 

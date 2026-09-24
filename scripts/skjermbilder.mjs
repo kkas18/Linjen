@@ -1,5 +1,5 @@
 // Tar Playwright-skjermbilder av forsiden og undersidene i mobil- og desktopstørrelse.
-// Bruk: npm run build && npm run skjermbilder [-- fase-2]
+// Bruk: npm run build && npm run skjermbilder [-- fase-2] [en]
 // Sett CHROMIUM_PATH hvis Playwright ikke finner sin egen nettleser.
 
 import { spawn, spawnSync } from 'node:child_process';
@@ -7,9 +7,11 @@ import { mkdir } from 'node:fs/promises';
 import { chromium } from '@playwright/test';
 
 const mappe = `screenshots/${process.argv[2] ?? 'fase-1'}`;
+const sprak = process.argv[3] === 'en' ? 'en' : 'nb';
 const port = 4329;
 const base = process.env.BASE_PATH ?? '/Linjen';
-const adresse = `http://localhost:${port}${base.replace(/\/$/, '')}/`;
+const rot = `http://localhost:${port}${base.replace(/\/$/, '')}/`;
+const adresse = sprak === 'en' ? `${rot}en/` : rot;
 
 const storrelser = [
   { navn: 'mobil-390x844', width: 390, height: 844, mobil: true },
@@ -29,7 +31,7 @@ const punkter = [
 const vent = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Undersider som fotograferes i full høyde, med en valgfri handling etterpå.
-const undersider = [
+const undersiderNb = [
   { navn: 'epokeside', sti: 'epoker/t-banen/' },
   {
     navn: 'epokeside-hest',
@@ -53,17 +55,32 @@ const undersider = [
   { navn: 'om', sti: 'om/' },
 ];
 
+const undersiderEn = [
+  { navn: 'epokeside', sti: 'eras/t-banen/' },
+  {
+    navn: 'epokeside-hest',
+    sti: 'eras/hestesporveien/',
+    handlingNavn: 'lysboks',
+    handling: (side) => side.click('[data-lysboks-apne="0"]'),
+  },
+  { navn: 'nettverket', sti: 'network/' },
+  { navn: 'signalling', sti: 'signalling/' },
+  { navn: 'sources', sti: 'sources/' },
+];
+
+const undersider = sprak === 'en' ? undersiderEn : undersiderNb;
+
 async function ventPaServer() {
   for (let i = 0; i < 50; i++) {
     try {
-      const svar = await fetch(adresse);
+      const svar = await fetch(rot);
       if (svar.ok) return;
     } catch {
       /* ikke klar ennå */
     }
     await vent(200);
   }
-  throw new Error(`Fikk ikke kontakt med ${adresse}`);
+  throw new Error(`Fikk ikke kontakt med ${rot}`);
 }
 
 /** Scroller rolig gjennom siden så alle scroll-animasjoner blir utløst. */

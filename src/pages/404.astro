@@ -1,24 +1,37 @@
 ---
 import Base from '../layouts/Base.astro';
 import Signal from '../components/Signal.astro';
-import { url } from '../lib/url';
+import { ordbok, rute } from '../i18n';
+
+// GitHub Pages har én 404-side for hele nettstedet, så den er tospråklig.
+const nb = ordbok('nb').feil;
+const en = ordbok('en').feil;
 ---
 
-<Base tittel="Feil spor" beskrivelse="Siden finnes ikke." indekser={false}>
+<Base tittel={nb.tittel} beskrivelse={nb.beskrivelse} indekser={false}>
   <section class="feil ramme">
     <div class="feil__skilt">
       <Signal />
-      <p class="t-etikett">Feil spor · 404</p>
+      <p class="t-etikett">{nb.etikett}</p>
     </div>
-    <h1>Denne siden finnes ikke</h1>
-    <p class="t-ingress">
-      Sporet du fulgte ender her. Gå tilbake til linjen og velg en ny stasjon.
-    </p>
+    <h1>{nb.h1}</h1>
+    <p class="t-ingress">{nb.ingress}</p>
     <p>
-      <a class="feil__lenke" href={url('/')}>
-        Tilbake til forsiden <span aria-hidden="true">→</span>
+      <a class="feil__lenke" href={rute('nb', 'forside')}>
+        {nb.tilbake} <span aria-hidden="true">→</span>
       </a>
     </p>
+
+    <div class="feil__en" lang="en">
+      <p class="t-ingress">
+        <strong>{en.h1}.</strong> {en.ingress}
+      </p>
+      <p>
+        <a class="feil__lenke" href={rute('en', 'forside')}>
+          {en.tilbake} <span aria-hidden="true">→</span>
+        </a>
+      </p>
+    </div>
   </section>
 </Base>
 
@@ -33,6 +46,17 @@ import { url } from '../lib/url';
     display: flex;
     align-items: center;
     gap: var(--s-3);
+  }
+
+  .feil__en {
+    display: grid;
+    gap: var(--s-4);
+    padding-top: var(--s-5);
+    border-top: var(--linje-tynn) solid var(--c-skinne);
+  }
+
+  .feil__en strong {
+    font-weight: 500;
   }
 
   .feil__lenke {

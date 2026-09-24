@@ -1,15 +1,17 @@
 ---
 // Tidslinje-oppsummering (5.6): alle stasjonene som klikkbare prikker på én linje.
 import { arTekst, type Epoke } from '../lib/epoker';
+import { ordbok, sprak } from '../i18n';
 
 interface Props {
   epoker: Epoke[];
 }
 
 const { epoker } = Astro.props;
+const t = ordbok(sprak(Astro.currentLocale)).avslutning;
 ---
 
-<nav class="tidslinje" aria-label="Alle stasjoner">
+<nav class="tidslinje" aria-label={t.alleStasjoner}>
   <ol class="tidslinje__liste">
     {epoker.map((e) => (
       <li class="tidslinje__punkt">

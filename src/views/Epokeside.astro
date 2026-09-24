@@ -1,0 +1,174 @@
+---
+// Epokeside (6.3): hero, lengre tekst, galleri og forrige/neste stasjon. Delt mellom nb og en.
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import FactBox from '../components/FactBox.astro';
+import Gallery from '../components/Gallery.astro';
+import BeforeAfter from '../components/BeforeAfter.astro';
+import { arTekst, type Epoke } from '../lib/epoker';
+import { ordbok, rute, sprak } from '../i18n';
+
+interface Props {
+  epoke: Epoke;
+  forrige?: Epoke;
+  neste?: Epoke;
+}
+
+const { epoke, forrige, neste } = Astro.props;
+const { data } = epoke;
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang);
+const ogBilde = lang === 'en' ? `og/en-${data.slug}.png` : `og/${data.slug}.png`;
+const { Content } = await render(epoke);
+---
+
+<Base tittel={data.tittel} beskrivelse={data.ingress} ogBilde={ogBilde}>
+  <Hero
+    kompakt
+    etikett={data.etikett}
+    tittel={data.tittel}
+    ingress={data.ingress}
+    bilde={data.hovedbilde}
+  />
+
+  <article class="epoke ramme" data-tema={data.tema}>
+    <div class="epoke__tekst">
+      <Content />
+    </div>
+
+    {data.faktaruter.length > 0 && (
+      <aside class="epoke__fakta" aria-label={t.fakta.nokkeltall}>
+        <FactBox fakta={data.faktaruter} />
+      </aside>
+    )}
+
+    {data.forEtter && (
+      <section class="epoke__galleri" aria-labelledby="for-etter-tittel">
+        <h2 id="for-etter-tittel">{t.epoke.daOgNa}</h2>
+        <BeforeAfter forEtter={data.forEtter} />
+      </section>
+    )}
+
+    <section class="epoke__galleri" aria-labelledby="galleri-tittel">
+      <h2 id="galleri-tittel">{t.epoke.bilder}</h2>
+      <Gallery bilder={data.galleri} />
+    </section>
+
+    <nav class="epoke__nav" aria-label={t.epoke.stasjoner}>
+      {forrige ? (
+        <a class="epoke__nav-lenke" href={rute(lang, 'epoke', forrige.data.slug)} rel="prev">
+          <span class="t-etikett">
+            <span aria-hidden="true">←</span> {t.epoke.forrige}
+          </span>
+          <span class="epoke__nav-tittel">{forrige.data.tittel}</span>
+          <span class="t-mono epoke__nav-ar">{arTekst(forrige.data)}</span>
+        </a>
+      ) : (
+        <a class="epoke__nav-lenke" href={rute(lang, 'forside')}>
+          <span class="t-etikett">
+            <span aria-hidden="true">←</span> {t.epoke.tilbake}
+          </span>
+          <span class="epoke__nav-tittel">{t.epoke.helelinjen}</span>
+        </a>
+      )}
+      {neste && (
+        <a
+          class="epoke__nav-lenke epoke__nav-lenke--neste"
+          href={rute(lang, 'epoke', neste.data.slug)}
+          rel="next"
+        >
+          <span class="t-etikett">
+            {t.epoke.neste} <span aria-hidden="true">→</span>
+          </span>
+          <span class="epoke__nav-tittel">{neste.data.tittel}</span>
+          <span class="t-mono epoke__nav-ar">{arTekst(neste.data)}</span>
+        </a>
+      )}
+    </nav>
+  </article>
+</Base>
+
+<script>
+  import { initMotion } from '../scripts/motion';
+
+  initMotion();
+</script>
+
+<style>
+  .epoke {
+    display: grid;
+    gap: var(--s-9);
+    padding-block: var(--s-9) 0;
+  }
+
+  .epoke__tekst {
+    display: grid;
+    gap: var(--s-4);
+    max-width: var(--tekst-maks);
+  }
+
+  .epoke__fakta {
+    max-width: 40rem;
+  }
+
+  .epoke__galleri {
+    display: grid;
+    gap: var(--s-6);
+  }
+
+  .epoke__nav {
+    display: grid;
+    gap: var(--s-5);
+    padding-top: var(--s-7);
+    border-top: var(--linje-tynn) solid var(--c-skinne);
+  }
+
+  .epoke__nav-lenke {
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-5);
+    background: var(--c-flate);
+    color: var(--c-grafitt);
+    text-decoration: none;
+    border: var(--linje-tynn) solid var(--c-grafitt);
+    transition:
+      transform var(--t-rask) var(--ease-out),
+      box-shadow var(--t-rask) var(--ease-out);
+  }
+
+  .epoke__nav-lenke:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .epoke__nav-lenke .t-etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  .epoke__nav-tittel {
+    font-family: var(--f-serif);
+    font-size: var(--fs-ingress);
+    font-weight: 500;
+  }
+
+  .epoke__nav-ar {
+    font-size: var(--fs-etikett);
+    color: var(--c-grafitt-2);
+  }
+
+  @media (min-width: 48rem) {
+    .epoke {
+      padding-left: var(--stasjon-innrykk);
+    }
+
+    .epoke__nav {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .epoke__nav-lenke--neste {
+      grid-column: 2;
+      text-align: right;
+    }
+  }
+</style>

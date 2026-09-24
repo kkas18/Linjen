@@ -1,29 +1,39 @@
 ---
-import { url } from '../lib/url';
+import { alternativ, ordbok, rute, sprak } from '../i18n';
 
+const lang = sprak(Astro.currentLocale);
+const annet = lang === 'en' ? 'nb' : 'en';
+const t = ordbok(lang).nav;
+
+// `aktiv` er stien (med base) som markerer lenken som gjeldende side.
 const lenker = [
-  { href: url('/#stasjoner'), tekst: 'Epoker', sti: '/epoker/' },
-  { href: url('/materiell/'), tekst: 'Materiell', sti: '/materiell/' },
-  { href: url('/nettverket/'), tekst: 'Nettverket', sti: '/nettverket/' },
-  { href: url('/signal/'), tekst: 'Signal', sti: '/signal/' },
-  { href: url('/kilder/'), tekst: 'Kilder', sti: '/kilder/' },
+  { href: `${rute(lang, 'forside')}#stasjoner`, tekst: t.epoker, aktiv: rute(lang, 'epoke', '') },
+  { href: rute(lang, 'materiell'), tekst: t.materiell, aktiv: rute(lang, 'materiell') },
+  { href: rute(lang, 'nettverket'), tekst: t.nettverket, aktiv: rute(lang, 'nettverket') },
+  { href: rute(lang, 'signal'), tekst: t.signal, aktiv: rute(lang, 'signal') },
+  { href: rute(lang, 'kilder'), tekst: t.kilder, aktiv: rute(lang, 'kilder') },
 ];
 
 const gjeldende = Astro.url.pathname;
-const erAktiv = (sti: string) => gjeldende.startsWith(url(sti));
+const erAktiv = (sti: string) => gjeldende.startsWith(sti.replace(/\/\/$/, '/'));
+const annenSide = alternativ(gjeldende, annet);
 ---
 
 <header class="nav">
   <div class="nav__indre ramme">
-    <a class="nav__ordmerke" href={url('/')}>
+    <a class="nav__ordmerke" href={rute(lang, 'forside')}>
       Linjen
     </a>
 
-    <nav class="nav__hoved" aria-label="Hovedmeny">
+    <nav class="nav__hoved" aria-label={t.hovedmeny}>
       <ul class="nav__liste">
         {lenker.map((l) => (
           <li>
-            <a class="nav__lenke" href={l.href} aria-current={erAktiv(l.sti) ? 'page' : undefined}>
+            <a
+              class="nav__lenke"
+              href={l.href}
+              aria-current={erAktiv(l.aktiv) ? 'page' : undefined}
+            >
               {l.tekst}
             </a>
           </li>
@@ -31,25 +41,40 @@ const erAktiv = (sti: string) => gjeldende.startsWith(url(sti));
       </ul>
     </nav>
 
+    <a
+      class="nav__sprak t-etikett"
+      href={annenSide}
+      lang={annet}
+      hreflang={annet}
+      aria-label={`${t.annetSprakNavn} (${t.annetSprakKort})`}
+    >
+      {t.annetSprakKort}
+    </a>
+
     <button
       class="nav__knapp t-etikett"
       type="button"
       aria-expanded="false"
       aria-controls="mobilmeny"
+      aria-label={t.apneMeny}
       data-menyknapp
+      data-tekst-meny={t.meny}
+      data-tekst-lukk={t.lukk}
+      data-aria-apne={t.apneMeny}
+      data-aria-lukk={t.lukkMeny}
     >
       <span class="nav__knapp-strek" aria-hidden="true"></span>
-      <span data-menyknapp-tekst>Meny</span>
+      <span data-menyknapp-tekst>{t.meny}</span>
     </button>
   </div>
 </header>
 
 <div class="meny" id="mobilmeny" data-meny data-apen="false" data-lenis-prevent>
-  <nav aria-label="Mobilmeny">
+  <nav aria-label={t.mobilmeny}>
     <ul class="meny__liste ramme">
       {lenker.map((l) => (
         <li>
-          <a class="meny__lenke" href={l.href} aria-current={erAktiv(l.sti) ? 'page' : undefined}>
+          <a class="meny__lenke" href={l.href} aria-current={erAktiv(l.aktiv) ? 'page' : undefined}>
             {l.tekst}
           </a>
         </li>
@@ -78,7 +103,24 @@ const erAktiv = (sti: string) => gjeldende.startsWith(url(sti));
     gap: var(--s-5);
   }
 
+  /* Språkvelger: liten tekstlenke ved siden av menyen */
+  .nav__sprak {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: var(--s-2);
+    color: var(--c-grafitt-2);
+    text-decoration: none;
+    border-left: var(--linje-tynn) solid var(--c-skinne);
+    padding-left: var(--s-4);
+  }
+
+  .nav__sprak:hover {
+    color: var(--c-trikkebla);
+  }
+
   .nav__ordmerke {
+    margin-right: auto;
     font-family: var(--f-serif);
     font-size: 1.375rem;
     font-weight: 500;
@@ -221,8 +263,11 @@ const erAktiv = (sti: string) => gjeldende.startsWith(url(sti));
   function settApen(apen: boolean, returnerFokus = true) {
     if (!knapp || !meny) return;
     knapp.setAttribute('aria-expanded', String(apen));
-    knapp.setAttribute('aria-label', apen ? 'Lukk meny' : 'Åpne meny');
-    if (tekst) tekst.textContent = apen ? 'Lukk' : 'Meny';
+    knapp.setAttribute(
+      'aria-label',
+      (apen ? knapp.dataset.ariaLukk : knapp.dataset.ariaApne) ?? '',
+    );
+    if (tekst) tekst.textContent = (apen ? knapp.dataset.tekstLukk : knapp.dataset.tekstMeny) ?? '';
     meny.dataset.apen = String(apen);
     document.documentElement.style.overflow = apen ? 'hidden' : '';
     utenfor.forEach((el) => (el.inert = apen));

@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import NetworkMap from '../components/NetworkMap.astro';
+import { ordbok, sprak } from '../i18n';
+
+const t = ordbok(sprak(Astro.currentLocale)).nettverk;
+---
+
+<Base tittel={t.sideTittel} beskrivelse={t.sideBeskrivelse}>
+  <div class="side ramme">
+    <header class="side__hode">
+      <p class="t-etikett side__etikett">{t.etikett}</p>
+      <h1>{t.sideTittel}</h1>
+      <p class="t-ingress">{t.ingress}</p>
+    </header>
+    <NetworkMap />
+  </div>
+</Base>
+
+<style>
+  .side {
+    display: grid;
+    gap: var(--s-8);
+    padding-block: var(--s-8) var(--s-9);
+  }
+
+  .side__hode {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .side__etikett {
+    color: var(--c-grafitt-2);
+  }
+</style>

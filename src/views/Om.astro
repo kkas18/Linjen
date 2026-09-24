@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import { ordbok, rute, sprak } from '../i18n';
+
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang).om;
+---
+
+<Base tittel={t.sideTittel} beskrivelse={t.sideBeskrivelse}>
+  <article class="side ramme">
+    <p class="t-etikett side__etikett">{t.etikett}</p>
+    <h1>{t.sideTittel}</h1>
+    <p class="t-ingress">{t.ingress}</p>
+    <p>{t.todo}</p>
+
+    <h2>{t.personvern}</h2>
+    <p>{t.personvernTekst}</p>
+
+    <h2>{t.kilderTittel}</h2>
+    <p>
+      {t.kilderFor} <a href={rute(lang, 'kilder')}>{t.kilderLenke}</a>.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .side {
+    display: grid;
+    gap: var(--s-5);
+    padding-block: var(--s-8) var(--s-9);
+  }
+
+  .side__etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  .side h2 {
+    margin-top: var(--s-5);
+  }
+
+  .side a {
+    color: var(--c-trikkebla);
+  }
+
+  @media (min-width: 48rem) {
+    .side {
+      padding-left: var(--stasjon-innrykk);
+    }
+  }
+</style>

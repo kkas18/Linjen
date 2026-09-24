@@ -37,7 +37,7 @@ export function initNettverk(rot: HTMLElement): void {
   // aria-live oppdateres bare når brukeren slipper glideren eller avspillingen stopper,
   // så skjermlesere ikke får ett varsel per år.
   function annonser(ar: number): void {
-    if (status) status.textContent = `${ar}: ${iDrift()} strekninger i drift`;
+    if (status) status.textContent = `${ar}: ${iDrift()} ${status.dataset.tekstIDrift ?? ''}`;
   }
 
   function vis(ar: number): void {
@@ -61,7 +61,7 @@ export function initNettverk(rot: HTMLElement): void {
   function stopp(): void {
     window.clearInterval(tidtaker);
     tidtaker = undefined;
-    spill!.textContent = 'Spill av';
+    spill!.textContent = spill!.dataset.tekstSpill ?? '';
     spill!.setAttribute('aria-pressed', 'false');
     annonser(Number(glider!.value));
   }
@@ -69,7 +69,7 @@ export function initNettverk(rot: HTMLElement): void {
   function spillAv(): void {
     if (Number(glider!.value) >= slutt) glider!.value = String(start);
     vis(Number(glider!.value));
-    spill!.textContent = 'Pause';
+    spill!.textContent = spill!.dataset.tekstPause ?? '';
     spill!.setAttribute('aria-pressed', 'true');
     tidtaker = window.setInterval(() => {
       const neste = Number(glider!.value) + 1;
