@@ -8,12 +8,17 @@ interface Props {
   tittel: string;
   ingress: string;
   bilde?: { fil: ImageMetadata; alt: string };
+  kompakt?: boolean; // epokesider: lavere hero uten sporlinje og scroll-hint
 }
 
-const { etikett, tittel, ingress, bilde } = Astro.props;
+const { etikett, tittel, ingress, bilde, kompakt = false } = Astro.props;
 ---
 
-<section class="hero" data-hero aria-labelledby="hero-tittel">
+<section
+  class:list={['hero', { 'hero--kompakt': kompakt }]}
+  data-hero
+  aria-labelledby="hero-tittel"
+>
   <div class="hero__bilde" data-hero-bilde>
     {bilde ? (
       <Picture
@@ -32,10 +37,11 @@ const { etikett, tittel, ingress, bilde } = Astro.props;
   </div>
   <div class="hero__gradient" aria-hidden="true"></div>
 
-  <!-- Sporlinjen starter her og tegnes ned i innholdet -->
-  <svg class="hero__spor" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 2 100">
-    <line x1="1" y1="0" x2="1" y2="100" pathLength="1" data-hero-spor></line>
-  </svg>
+  {!kompakt && (
+    <svg class="hero__spor" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 2 100">
+      <line x1="1" y1="0" x2="1" y2="100" pathLength="1" data-hero-spor />
+    </svg>
+  )}
 
   <div class="hero__tekst">
     <p class="t-etikett hero__etikett">{etikett}</p>
@@ -45,10 +51,12 @@ const { etikett, tittel, ingress, bilde } = Astro.props;
     <p class="t-ingress hero__ingress">{ingress}</p>
   </div>
 
-  <div class="hero__scroll" aria-hidden="true">
-    <span class="t-etikett">Scroll for å kjøre</span>
-    <span class="hero__scroll-strek"></span>
-  </div>
+  {!kompakt && (
+    <div class="hero__scroll" aria-hidden="true">
+      <span class="t-etikett">Scroll for å kjøre</span>
+      <span class="hero__scroll-strek" />
+    </div>
+  )}
 </section>
 
 <style>
@@ -59,6 +67,15 @@ const { etikett, tittel, ingress, bilde } = Astro.props;
     overflow: clip;
     background: var(--c-tunnel-2);
     color: var(--c-lys-tekst);
+  }
+
+  .hero--kompakt {
+    height: 70svh;
+    min-height: 28rem;
+  }
+
+  .hero--kompakt .hero__tekst {
+    bottom: var(--s-8);
   }
 
   .hero__bilde {

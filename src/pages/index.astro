@@ -1,15 +1,19 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import TrackLine from '../components/TrackLine.astro';
 import Station from '../components/Station.astro';
+import MaterialStrip from '../components/MaterialStrip.astro';
+import Closing from '../components/Closing.astro';
+import { hentEpoker } from '../lib/epoker';
 
 // Første stasjon teller opp fra dette året (det finnes ingen forrige epoke).
 const START_AR = 1850;
 
-const epoker = (await getCollection('epoker')).sort(
-  (a, b) => a.data.rekkefolge - b.data.rekkefolge,
+const epoker = await hentEpoker();
+// Det første bildet etter overgangen til tunnel får «tunnellys» (5.4).
+const forsteTunnel = epoker.findIndex(
+  (e, i) => e.data.tema === 'tunnel' && epoker[i - 1]?.data.tema !== 'tunnel',
 );
 ---
 
@@ -25,9 +29,17 @@ const epoker = (await getCollection('epoker')).sort(
 
   <TrackLine>
     {epoker.map((epoke, i) => (
-      <Station epoke={epoke} fraAr={i === 0 ? START_AR : epoker[i - 1].data.ar} />
+      <Station
+        epoke={epoke}
+        fraAr={i === 0 ? START_AR : epoker[i - 1].data.ar}
+        tunnellys={i === forsteTunnel}
+      />
     ))}
   </TrackLine>
+
+  <MaterialStrip />
+
+  <Closing epoker={epoker} />
 </Base>
 
 <script>

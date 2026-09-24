@@ -1,0 +1,82 @@
+---
+// Materiell-stripe (5.5): pinnet horisontal rad på desktop, vanlig sveip på mobil.
+import { getCollection } from 'astro:content';
+import MaterialCard from './MaterialCard.astro';
+
+const vogner = (await getCollection('materiell')).sort(
+  (a, b) => a.data.rekkefolge - b.data.rekkefolge,
+);
+---
+
+<section class="materiell" aria-labelledby="materiell-tittel" data-materiell>
+  <div class="materiell__hode ramme">
+    <p class="t-etikett materiell__etikett">Vogner og tog</p>
+    <h2 id="materiell-tittel">Materiell gjennom tidene</h2>
+  </div>
+  <div
+    class="materiell__vindu"
+    tabindex="0"
+    role="region"
+    aria-label="Vogntyper i kronologisk rekkefølge"
+    data-materiell-vindu
+  >
+    <ol class="materiell__rad" data-materiell-rad>
+      {vogner.map((vogn) => (
+        <MaterialCard vogn={vogn} />
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .materiell {
+    padding-block: var(--s-9);
+    background: var(--c-perrong);
+    color: var(--c-grafitt);
+    overflow: clip;
+  }
+
+  .materiell__hode {
+    display: grid;
+    gap: var(--s-3);
+    margin-bottom: var(--s-7);
+  }
+
+  .materiell__etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  /* Standard (mobil / redusert bevegelse): vanlig horisontal sveip med snapping */
+  .materiell__vindu {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--marg);
+    overscroll-behavior-x: contain;
+  }
+
+  .materiell__rad {
+    display: flex;
+    gap: var(--s-5);
+    width: max-content;
+    list-style: none;
+    padding: var(--s-2) var(--marg) var(--s-5);
+  }
+
+  @media (min-width: 48rem) {
+    .materiell__hode {
+      padding-left: var(--stasjon-innrykk);
+    }
+
+    .materiell__rad {
+      padding-left: max(
+        var(--stasjon-innrykk),
+        calc((100vw - var(--maks-bredde)) / 2 + var(--stasjon-innrykk))
+      );
+    }
+
+    /* Pinnet: motion.ts flytter raden horisontalt mens seksjonen står fast */
+    .materiell[data-pinnet='true'] .materiell__vindu {
+      overflow: visible;
+    }
+  }
+</style>
