@@ -1,5 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 import { FORSTE, MED_FOR_ETTER, UTVALG } from './innhold';
+// Sidetekstene hentes fra ordbøkene, så testene tåler at tekstene endres.
+import { nb } from '../src/i18n/nb';
+import { en } from '../src/i18n/en';
+import { APPNAVN, TEMAFARGE } from '../pwa.config.mjs';
 
 // Epokesidene hentes fra innholdsfilene, så testene ikke låses til bestemte slugs.
 const SIDER = [
@@ -109,11 +113,11 @@ test.describe('engelsk versjon (fase 5)', () => {
     await glider.fill(String(epoke.ar));
     await glider.dispatchEvent('change');
     await expect(page.locator('[data-nettverk-epoke-tittel]')).toHaveText(epoke.tittel);
-    await expect(page.locator('[data-nettverk-status]')).toContainText('lines in service');
+    await expect(page.locator('[data-nettverk-status]')).toContainText(en.nettverk.iDrift);
     const spill = page.locator('[data-nettverk-spill]');
-    await expect(spill).toHaveText('Play');
+    await expect(spill).toHaveText(en.nettverk.spill);
     await spill.click();
-    await expect(spill).toHaveText('Pause');
+    await expect(spill).toHaveText(en.nettverk.pause);
     await spill.click();
   });
 
@@ -125,8 +129,8 @@ test.describe('engelsk versjon (fase 5)', () => {
 
   test('404 er tospråklig', async ({ page }) => {
     await page.goto('en/finnes-ikke/');
-    await expect(page.locator('h1')).toHaveText('Denne siden finnes ikke');
-    await expect(page.locator('.feil__en')).toContainText('This page does not exist');
+    await expect(page.locator('h1')).toHaveText(nb.feil.h1);
+    await expect(page.locator('.feil__en')).toContainText(en.feil.h1);
   });
 });
 
@@ -258,13 +262,13 @@ test.describe('ferdigstilling', () => {
   test('404-side', async ({ page }) => {
     const svar = await page.goto('finnes-ikke/');
     expect(svar?.status()).toBe(404);
-    await expect(page.locator('h1')).toHaveText('Denne siden finnes ikke');
+    await expect(page.locator('h1')).toHaveText(nb.feil.h1);
   });
 
   test('PWA-manifest, sitemap og OG-bilde', async ({ page, request, baseURL }) => {
     const manifest = await (await request.get(`${baseURL}manifest.webmanifest`)).json();
-    expect(manifest.name).toBe('Linjen – Sporveiens historie');
-    expect(manifest.theme_color).toBe('#0F1216');
+    expect(manifest.name).toBe(APPNAVN);
+    expect(manifest.theme_color).toBe(TEMAFARGE);
     expect(manifest.icons.some((i: { purpose?: string }) => i.purpose === 'maskable')).toBe(true);
 
     const sitemap = await (await request.get(`${baseURL}sitemap.xml`)).text();
