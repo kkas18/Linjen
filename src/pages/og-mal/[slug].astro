@@ -1,0 +1,140 @@
+---
+// Intern mal for Open Graph-bilder (1200 × 630). scripts/og.mjs tar skjermbilde av hver side
+// og sletter mappen fra dist/ etterpå. Ikke lenket noe sted, og merket noindex.
+import type { GetStaticPaths } from 'astro';
+import '@fontsource-variable/source-serif-4/opsz.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/ibm-plex-mono/300.css';
+import '../../styles/tokens.css';
+import { arTekst, hentEpoker } from '../../lib/epoker';
+
+export const getStaticPaths = (async () => {
+  const epoker = await hentEpoker();
+  return [
+    {
+      params: { slug: 'forside' },
+      props: { etikett: 'Sporveien · 1875 – i dag', ar: '', tittel: 'Linjen gjennom byen' },
+    },
+    ...epoker.map((e) => ({
+      params: { slug: e.data.slug },
+      props: { etikett: e.data.etikett, ar: arTekst(e.data), tittel: e.data.tittel },
+    })),
+  ];
+}) satisfies GetStaticPaths;
+
+const { etikett, ar, tittel } = Astro.props;
+// Lange årstall («1945–1960-tallet») og titler skaleres ned så alt får plass i 1200 × 630.
+const arStorrelse = ar.length > 6 ? 84 : 132;
+const tittelStorrelse = tittel.length > 24 ? 56 : 72;
+---
+
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>OG: {tittel}</title>
+  </head>
+  <body>
+    <main class="og">
+      <div class="og__spor" aria-hidden="true">
+        <span class="og__trikk"></span>
+      </div>
+      <div class="og__tekst">
+        <p class="og__etikett">{etikett}</p>
+        {ar && (
+          <p class="og__ar" style={`font-size: ${arStorrelse}px`}>
+            {ar}
+          </p>
+        )}
+        <h1 class="og__tittel" style={`font-size: ${tittelStorrelse}px`}>
+          {tittel}
+        </h1>
+      </div>
+      <p class="og__merke">
+        Linjen <span>· Sporveiens historie</span>
+      </p>
+    </main>
+  </body>
+</html>
+
+<style>
+  :global(html),
+  :global(body) {
+    margin: 0;
+  }
+
+  .og {
+    position: relative;
+    box-sizing: border-box;
+    width: 1200px;
+    height: 630px;
+    padding: 72px 96px 72px 176px;
+    background: var(--c-tunnel);
+    color: var(--c-lys-tekst);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  .og__spor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 96px;
+    width: 4px;
+    background: var(--c-skinne-mork);
+  }
+
+  .og__trikk {
+    position: absolute;
+    top: 240px;
+    left: -10px;
+    width: 24px;
+    height: 56px;
+    background: var(--c-trikkebla);
+  }
+
+  .og__tekst {
+    display: grid;
+    gap: 16px;
+  }
+
+  .og__etikett {
+    margin: 0;
+    font-family: var(--f-sans);
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: var(--sperring-etikett);
+    text-transform: uppercase;
+    color: var(--c-lys-tekst-2);
+  }
+
+  .og__ar {
+    margin: 0;
+    font-family: var(--f-mono);
+    font-weight: 300;
+    line-height: 1;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .og__tittel {
+    margin: 0;
+    font-family: var(--f-serif);
+    font-weight: 500;
+    line-height: 1.05;
+    max-width: 20ch;
+  }
+
+  .og__merke {
+    margin: 0;
+    font-family: var(--f-serif);
+    font-size: 30px;
+  }
+
+  .og__merke span {
+    color: var(--c-lys-tekst-2);
+  }
+</style>

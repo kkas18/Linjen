@@ -1,0 +1,144 @@
+---
+// Kilder, litteratur og full bildekreditering (6.4) – generert fra innholdsfilene.
+import Base from '../../layouts/Base.astro';
+import { alleKrediteringer, litteratur } from '../../lib/kilder';
+
+const bilder = await alleKrediteringer();
+---
+
+<Base
+  tittel="Kilder"
+  beskrivelse="Kilder, litteratur og full bildekreditering for Linjen – Sporveiens historie."
+>
+  <div class="side ramme">
+    <header class="side__hode">
+      <p class="t-etikett side__etikett">Kilder og kreditering</p>
+      <h1>Kilder</h1>
+      <p class="t-ingress">Litteraturen bak fortellingen, og hvem som har tatt og eier bildene.</p>
+    </header>
+
+    <section class="seksjon" aria-labelledby="litteratur-tittel">
+      <h2 id="litteratur-tittel">Litteratur og kilder</h2>
+      {litteratur.length === 0 ? (
+        <p class="tom">[[TODO: kildeliste – leveres av eier i src/data/kilder.json]]</p>
+      ) : (
+        <ol class="kildeliste">
+          {litteratur.map((k) => (
+            <li>
+              {k.forfatter && <span>{k.forfatter}: </span>}
+              <cite>{k.lenke ? <a href={k.lenke}>{k.tittel}</a> : k.tittel}</cite>
+              {[k.utgiver, k.utgitt].filter(Boolean).length > 0 && (
+                <span>. {[k.utgiver, k.utgitt].filter(Boolean).join(', ')}</span>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
+
+    <section class="seksjon" aria-labelledby="bilder-tittel">
+      <h2 id="bilder-tittel">Bildekreditering</h2>
+      {bilder.length === 0 ? (
+        <p class="tom">
+          Ingen bilder er registrert ennå. Når bilder legges inn i innholdsfilene, vises
+          krediteringen her automatisk.
+        </p>
+      ) : (
+        <div class="tabell-ramme" tabindex="0" role="region" aria-label="Bildekreditering">
+          <table class="tabell">
+            <thead>
+              <tr>
+                <th scope="col">Bilde</th>
+                <th scope="col">Fotograf</th>
+                <th scope="col">År</th>
+                <th scope="col">Eier / arkiv</th>
+                <th scope="col">Lisens</th>
+                <th scope="col">Kilde</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bilder.map((b) => (
+                <tr>
+                  <td>
+                    {b.alt}
+                    <br />
+                    <a class="t-bildetekst" href={b.brukt.href}>
+                      {b.brukt.tekst}
+                    </a>
+                  </td>
+                  <td>{b.fotograf ?? 'Ukjent'}</td>
+                  <td class="t-mono">{b.ar ?? '–'}</td>
+                  <td>{b.arkiv ?? '–'}</td>
+                  <td>{b.lisens}</td>
+                  <td>
+                    <a href={b.kilde}>Lenke</a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  </div>
+</Base>
+
+<style>
+  .side {
+    display: grid;
+    gap: var(--s-8);
+    padding-block: var(--s-8) var(--s-9);
+  }
+
+  .side__hode {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .side__etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  .seksjon {
+    display: grid;
+    gap: var(--s-5);
+  }
+
+  .tom {
+    color: var(--c-grafitt-2);
+  }
+
+  .kildeliste {
+    display: grid;
+    gap: var(--s-3);
+    padding-left: var(--s-5);
+  }
+
+  .tabell-ramme {
+    overflow-x: auto;
+  }
+
+  .tabell {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-bildetekst);
+  }
+
+  .tabell th,
+  .tabell td {
+    padding: var(--s-3);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: var(--linje-tynn) solid var(--c-skinne);
+  }
+
+  .tabell th {
+    font-weight: 600;
+  }
+
+  @media (min-width: 48rem) {
+    .side {
+      padding-left: var(--stasjon-innrykk);
+    }
+  }
+</style>

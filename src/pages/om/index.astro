@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+import { url } from '../../lib/url';
+---
+
+<Base
+  tittel="Om nettstedet"
+  beskrivelse="Om Linjen – et nettsted om Sporveiens historie fra 1875 til i dag."
+>
+  <article class="side ramme">
+    <p class="t-etikett side__etikett">Om</p>
+    <h1>Om nettstedet</h1>
+    <p class="t-ingress">
+      Linjen forteller Sporveiens historie – fra hestesporveien i 1875 til dagens T-bane, trikk og
+      framtidige signalsystem – stasjon for stasjon.
+    </p>
+    <p>[[TODO: hvem som står bak nettstedet, og hvordan innholdet er laget og kvalitetssikret.]]</p>
+
+    <h2>Personvern</h2>
+    <p>
+      Nettstedet bruker ingen informasjonskapsler og ingen sporing, og henter ingenting fra
+      tredjeparter når du besøker det. Fonter og bilder ligger på nettstedet selv.
+    </p>
+
+    <h2>Kilder og bilder</h2>
+    <p>
+      Alle kilder og full bildekreditering står på <a href={url('/kilder/')}>kildesiden</a>.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .side {
+    display: grid;
+    gap: var(--s-5);
+    padding-block: var(--s-8) var(--s-9);
+  }
+
+  .side__etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  .side h2 {
+    margin-top: var(--s-5);
+  }
+
+  .side a {
+    color: var(--c-trikkebla);
+  }
+
+  @media (min-width: 48rem) {
+    .side {
+      padding-left: var(--stasjon-innrykk);
+    }
+  }
+</style>

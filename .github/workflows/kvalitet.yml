@@ -1,0 +1,75 @@
+name: Kvalitet
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kvalitet-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ASTRO_TELEMETRY_DISABLED: 1
+
+jobs:
+  kvalitet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hent kode
+        uses: actions/checkout@v4
+
+      - name: Sett opp Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer avhengigheter
+        run: npm ci
+
+      - name: Installer Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Formatering
+        run: npm run format:check
+
+      - name: Typesjekk
+        run: npm run check
+
+      - name: Bygg (med base-sti, som på GitHub Pages)
+        run: npm run build
+
+      - name: Playwright-tester
+        run: npm test
+
+      - name: Lagre Playwright-rapport
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-rapport
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+      - name: Bygg for Lighthouse (fra rot)
+        run: npm run build
+        env:
+          BASE_PATH: /
+
+      - name: Lighthouse CI
+        run: npm run lhci
+
+      - name: Lagre Lighthouse-rapporter
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-rapporter
+          path: .lighthouseci/
+          retention-days: 14
