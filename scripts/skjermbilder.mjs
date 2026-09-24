@@ -1,4 +1,4 @@
-// Tar Playwright-skjermbilder av forsiden og en epokeside i mobil- og desktopstørrelse.
+// Tar Playwright-skjermbilder av forsiden og undersidene i mobil- og desktopstørrelse.
 // Bruk: npm run build && npm run skjermbilder [-- fase-2]
 // Sett CHROMIUM_PATH hvis Playwright ikke finner sin egen nettleser.
 
@@ -27,6 +27,28 @@ const punkter = [
 ];
 
 const vent = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Undersider som fotograferes i full høyde, med en valgfri handling etterpå.
+const undersider = [
+  { navn: 'epokeside', sti: 'epoker/t-banen/' },
+  {
+    navn: 'epokeside-hest',
+    sti: 'epoker/hestesporveien/',
+    handlingNavn: 'lysboks',
+    handling: (side) => side.click('[data-lysboks-apne="0"]'),
+  },
+  {
+    navn: 'nettverket',
+    sti: 'nettverket/',
+    handlingNavn: '1930',
+    handling: async (side) => {
+      await side.fill('[data-nettverk-glider]', '1930');
+      await side.evaluate(() => window.scrollTo(0, 0));
+      await vent(1200);
+    },
+  },
+  { navn: 'signal', sti: 'signal/' },
+];
 
 async function ventPaServer() {
   for (let i = 0; i < 50; i++) {
@@ -101,11 +123,17 @@ try {
     await vent(2000);
     await side.screenshot({ path: `${mappe}/${s.navn}-helside.png`, fullPage: true });
 
-    // Én epokeside (finnes fra fase 2)
-    const epoke = await side.goto(`${adresse}epoker/t-banen/`, { waitUntil: 'networkidle' });
-    if (epoke?.ok()) {
+    // Undersider (tas bare hvis de finnes i bygget)
+    for (const u of undersider) {
+      const svar = await side.goto(`${adresse}${u.sti}`, { waitUntil: 'networkidle' });
+      if (!svar?.ok()) continue;
       await vent(2500);
-      await side.screenshot({ path: `${mappe}/${s.navn}-epokeside.png`, fullPage: true });
+      await side.screenshot({ path: `${mappe}/${s.navn}-${u.navn}.png`, fullPage: true });
+      if (u.handling) {
+        await u.handling(side);
+        await vent(800);
+        await side.screenshot({ path: `${mappe}/${s.navn}-${u.navn}-${u.handlingNavn}.png` });
+      }
     }
     await side.close();
   }

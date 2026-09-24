@@ -1,0 +1,178 @@
+---
+// Før/etter-glider (6.3): samme sted da og nå, dra håndtaket eller bruk piltastene.
+import { Picture } from 'astro:assets';
+import type { Stasjon } from '../lib/epoker';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+
+interface Props {
+  forEtter: NonNullable<Stasjon['data']['forEtter']>;
+}
+
+const { forEtter } = Astro.props;
+const { for: bildeFor, etter: bildeEtter, sted } = forEtter;
+---
+
+<figure class="for-etter">
+  <div class="for-etter__flate" style="--pos: 50%" data-for-etter>
+    <div class="for-etter__lag">
+      {bildeEtter ? (
+        <Picture
+          src={bildeEtter.fil}
+          alt={bildeEtter.alt}
+          formats={['avif', 'webp']}
+          widths={[640, 1200, 1800]}
+          sizes="(min-width: 48rem) 70vw, 100vw"
+          loading="lazy"
+        />
+      ) : (
+        <PhotoPlaceholder fyll etikett="Etter: bilde kommer" />
+      )}
+    </div>
+    <div class="for-etter__lag for-etter__lag--for">
+      {bildeFor ? (
+        <Picture
+          src={bildeFor.fil}
+          alt={bildeFor.alt}
+          formats={['avif', 'webp']}
+          widths={[640, 1200, 1800]}
+          sizes="(min-width: 48rem) 70vw, 100vw"
+          loading="lazy"
+        />
+      ) : (
+        <PhotoPlaceholder fyll tone="mork" etikett="Før: bilde kommer" />
+      )}
+    </div>
+
+    <span class="t-etikett for-etter__merke for-etter__merke--for" aria-hidden="true">
+      Før
+    </span>
+    <span class="t-etikett for-etter__merke for-etter__merke--etter" aria-hidden="true">
+      Etter
+    </span>
+    <span class="for-etter__handtak" aria-hidden="true"></span>
+
+    <input
+      class="for-etter__glider"
+      type="range"
+      min="0"
+      max="100"
+      value="50"
+      aria-label="Sammenlign før og etter: andel av førbildet som vises"
+      aria-valuetext="50 % før"
+      data-for-etter-glider
+    />
+  </div>
+  <figcaption class="t-bildetekst">
+    {sted}
+    {(bildeFor || bildeEtter) && (
+      <span class="for-etter__kreditering">
+        {[bildeFor, bildeEtter]
+          .filter(Boolean)
+          .map((b) => [b!.fotograf, b!.arkiv, b!.lisens].filter(Boolean).join(' · '))
+          .join(' / ')}
+      </span>
+    )}
+  </figcaption>
+</figure>
+
+<style>
+  .for-etter {
+    display: grid;
+    gap: var(--s-3);
+  }
+
+  .for-etter__flate {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: var(--r-bilde);
+    user-select: none;
+  }
+
+  .for-etter__lag {
+    position: absolute;
+    inset: 0;
+  }
+
+  .for-etter__lag :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--r-ingen);
+    filter: grayscale(1);
+  }
+
+  .for-etter__lag--for {
+    clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+  }
+
+  .for-etter__merke {
+    position: absolute;
+    top: var(--s-3);
+    padding: var(--s-1) var(--s-2);
+    background: var(--c-flate);
+    color: var(--c-grafitt);
+  }
+
+  .for-etter__merke--for {
+    left: var(--s-3);
+  }
+
+  .for-etter__merke--etter {
+    right: var(--s-3);
+  }
+
+  /* Håndtak: tynn vertikal linje med et lite grep */
+  .for-etter__handtak {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--pos);
+    width: var(--spor-bredde);
+    margin-left: calc(var(--spor-bredde) / -2);
+    background: var(--c-flate);
+    pointer-events: none;
+  }
+
+  .for-etter__handtak::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--s-6);
+    height: var(--s-6);
+    transform: translate(-50%, -50%);
+    background: var(--c-flate);
+    border: var(--spor-bredde) solid var(--c-grafitt);
+  }
+
+  .for-etter__flate:has(.for-etter__glider:focus-visible) .for-etter__handtak::after {
+    outline: var(--fokus-bredde) solid var(--c-trikkebla);
+    outline-offset: var(--fokus-avstand);
+  }
+
+  /* Usynlig range-kontroll over hele flaten: dra, klikk eller bruk piltastene */
+  .for-etter__glider {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+  }
+
+  .for-etter__kreditering {
+    display: block;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-for-etter]').forEach((flate) => {
+    const glider = flate.querySelector<HTMLInputElement>('[data-for-etter-glider]');
+    glider?.addEventListener('input', () => {
+      flate.style.setProperty('--pos', `${glider.value}%`);
+      glider.setAttribute('aria-valuetext', `${glider.value} % før`);
+    });
+  });
+</script>

@@ -1,0 +1,37 @@
+---
+import Base from '../../layouts/Base.astro';
+import NetworkMap from '../../components/NetworkMap.astro';
+---
+
+<Base
+  tittel="Nettverket"
+  beskrivelse="Se Sporveiens nett vokse fram år for år – et skjematisk kart fra 1875 til i dag."
+>
+  <div class="side ramme">
+    <header class="side__hode">
+      <p class="t-etikett side__etikett">Nettverket over tid</p>
+      <h1>Nettverket</h1>
+      <p class="t-ingress">
+        Dra i årstallet eller trykk «Spill av» for å se hvordan linjene vokste fram.
+      </p>
+    </header>
+    <NetworkMap />
+  </div>
+</Base>
+
+<style>
+  .side {
+    display: grid;
+    gap: var(--s-8);
+    padding-block: var(--s-8) var(--s-9);
+  }
+
+  .side__hode {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .side__etikett {
+    color: var(--c-grafitt-2);
+  }
+</style>

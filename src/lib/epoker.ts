@@ -2,18 +2,21 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Epoke = CollectionEntry<'epoker'>;
 
+/** Alt som kan vises som en stasjon (epoker og signalhistorien har samme skjema). */
+export type Stasjon = CollectionEntry<'epoker'> | CollectionEntry<'signal'>;
+
 /** Alle epoker i rekkefølge langs linjen. */
 export async function hentEpoker(): Promise<Epoke[]> {
   return (await getCollection('epoker')).sort((a, b) => a.data.rekkefolge - b.data.rekkefolge);
 }
 
 /** Året slik det vises i stasjonsskilt og etiketter. */
-export function arTekst(data: Epoke['data']): string {
+export function arTekst(data: Stasjon['data']): string {
   return data.arVisning ?? String(data.ar ?? '');
 }
 
 /** Delen av visningsåret som står etter selve tallet, f.eks. «–1960-tallet». */
-export function arHale(data: Epoke['data']): string {
+export function arHale(data: Stasjon['data']): string {
   if (data.ar === null || !data.arVisning) return '';
   const tall = String(data.ar);
   return data.arVisning.startsWith(tall) ? data.arVisning.slice(tall.length) : '';

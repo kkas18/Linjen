@@ -11,7 +11,8 @@ faktaruter:
   - { etikett: 'Linjelengde', verdi: '[[TODO: linjelengde]]' }
   - { etikett: 'Antall vogner', verdi: '[[TODO: antall vogner]]' }
 galleri: []
-forEtter: null
+forEtter:
+  sted: '[[TODO: samme sted da og nå]]'
 ---
 
 Kristiania Sporveisselskab åpnet de første linjene med hest i 1875. [[TODO: hvilke strekninger ble åpnet, og hvor gikk de?]]
