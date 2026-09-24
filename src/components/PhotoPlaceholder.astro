@@ -1,5 +1,7 @@
 ---
 // Grå flate som brukes når eiers bilde mangler (arbeidsregel 4).
+import { ordbok, sprak } from '../i18n';
+
 interface Props {
   forhold?: string; // f.eks. '3 / 2'
   etikett?: string;
@@ -9,15 +11,16 @@ interface Props {
 }
 
 const { forhold = '3 / 2', etikett, tone = 'lys', fyll = false, class: klasse } = Astro.props;
+const tekst = ordbok(sprak(Astro.currentLocale)).felles.bildeKommer;
 ---
 
 <div
   class:list={['plassholder', `plassholder--${tone}`, { 'plassholder--fyll': fyll }, klasse]}
   style={fyll ? undefined : `aspect-ratio: ${forhold}`}
   role="img"
-  aria-label={etikett ?? 'Bilde kommer'}
+  aria-label={etikett ?? tekst}
 >
-  <span class="t-etikett">Bilde kommer</span>
+  <span class="t-etikett">{tekst}</span>
 </div>
 
 <style>

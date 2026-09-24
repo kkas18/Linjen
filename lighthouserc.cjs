@@ -6,7 +6,14 @@ module.exports = {
   ci: {
     collect: {
       staticDistDir: './dist',
-      url: ['/', '/epoker/hestesporveien/', '/nettverket/', '/signal/'],
+      url: [
+        '/',
+        '/epoker/hestesporveien/',
+        '/nettverket/',
+        '/signal/',
+        '/en/',
+        '/en/eras/hestesporveien/',
+      ],
       numberOfRuns: 3,
       chromePath: process.env.CHROMIUM_PATH || undefined,
       settings: { chromeFlags: '--no-sandbox' },

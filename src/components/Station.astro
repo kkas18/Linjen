@@ -4,8 +4,8 @@ import { Picture } from 'astro:assets';
 import Signal from './Signal.astro';
 import FactBox from './FactBox.astro';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
-import { url } from '../lib/url';
 import { arHale, arTekst, utdrag, type Stasjon } from '../lib/epoker';
+import { ordbok, rute, sprak } from '../i18n';
 
 interface Props {
   epoke: Stasjon;
@@ -16,7 +16,9 @@ interface Props {
 
 const { epoke, fraAr, tunnellys = false } = Astro.props;
 const { data } = epoke;
-const lenke = Astro.props.lenke === undefined ? url(`/epoker/${data.slug}/`) : Astro.props.lenke;
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang).felles;
+const lenke = Astro.props.lenke === undefined ? rute(lang, 'epoke', data.slug) : Astro.props.lenke;
 const visAr = arTekst(data);
 const tekst = utdrag(epoke.rendered?.html ?? '');
 const hale = arHale(data);
@@ -84,9 +86,7 @@ const tittelId = `stasjon-${data.slug}`;
         </span>
       </figcaption>
     ) : (
-      <figcaption class="t-bildetekst stasjon__bildetekst">
-        [[TODO: hovedbilde med bildetekst og kreditering]]
-      </figcaption>
+      <figcaption class="t-bildetekst stasjon__bildetekst">{t.todoHovedbilde}</figcaption>
     )}
   </figure>
 
@@ -97,7 +97,7 @@ const tittelId = `stasjon-${data.slug}`;
   {lenke && (
     <p class="stasjon__lenke">
       <a href={lenke}>
-        Les mer om epoken <span aria-hidden="true">→</span>
+        {t.lesMer} <span aria-hidden="true">→</span>
       </a>
     </p>
   )}

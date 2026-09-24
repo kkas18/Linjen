@@ -2,6 +2,7 @@
 import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import { ordbok, sprak } from '../i18n';
 
 interface Props {
   etikett: string;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 const { etikett, tittel, ingress, bilde, kompakt = false } = Astro.props;
+const t = ordbok(sprak(Astro.currentLocale));
 ---
 
 <section
@@ -32,7 +34,7 @@ const { etikett, tittel, ingress, bilde, kompakt = false } = Astro.props;
         class="hero__foto"
       />
     ) : (
-      <PhotoPlaceholder tone="mork" fyll etikett="Arkivfoto kommer" />
+      <PhotoPlaceholder tone="mork" fyll etikett={t.felles.arkivfotoKommer} />
     )}
   </div>
   <div class="hero__gradient" aria-hidden="true"></div>
@@ -53,7 +55,7 @@ const { etikett, tittel, ingress, bilde, kompakt = false } = Astro.props;
 
   {!kompakt && (
     <div class="hero__scroll" aria-hidden="true">
-      <span class="t-etikett">Scroll for å kjøre</span>
+      <span class="t-etikett">{t.forside.scroll}</span>
       <span class="hero__scroll-strek" />
     </div>
   )}

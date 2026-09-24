@@ -1,23 +1,24 @@
 ---
 // Materiell-stripe (5.5): pinnet horisontal rad på desktop, vanlig sveip på mobil.
-import { getCollection } from 'astro:content';
 import MaterialCard from './MaterialCard.astro';
+import { hentMateriell } from '../lib/epoker';
+import { ordbok, sprak } from '../i18n';
 
-const vogner = (await getCollection('materiell')).sort(
-  (a, b) => a.data.rekkefolge - b.data.rekkefolge,
-);
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang).materiell;
+const vogner = await hentMateriell(lang);
 ---
 
 <section class="materiell" aria-labelledby="materiell-tittel" data-materiell>
   <div class="materiell__hode ramme">
-    <p class="t-etikett materiell__etikett">Vogner og tog</p>
-    <h2 id="materiell-tittel">Materiell gjennom tidene</h2>
+    <p class="t-etikett materiell__etikett">{t.etikett}</p>
+    <h2 id="materiell-tittel">{t.stripeTittel}</h2>
   </div>
   <div
     class="materiell__vindu"
     tabindex="0"
     role="region"
-    aria-label="Vogntyper i kronologisk rekkefølge"
+    aria-label={t.stripeRegion}
     data-materiell-vindu
   >
     <ol class="materiell__rad" data-materiell-rad>

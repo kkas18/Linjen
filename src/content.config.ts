@@ -56,16 +56,34 @@ const signal = defineCollection({
   schema: stasjon,
 });
 
+const materiellSkjema = (ctx: SchemaContext) =>
+  z.object({
+    rekkefolge: z.number().int().positive(),
+    type: z.string(), // typebetegnelse, vises i Plex Mono
+    iDrift: z.string(), // f.eks. «1966–2006»
+    setning: z.string(),
+    bilde: bilde(ctx).optional(),
+  });
+
 const materiell = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/materiell' }),
-  schema: (ctx) =>
-    z.object({
-      rekkefolge: z.number().int().positive(),
-      type: z.string(), // typebetegnelse, vises i Plex Mono
-      iDrift: z.string(), // f.eks. «1966–2006»
-      setning: z.string(),
-      bilde: bilde(ctx).optional(),
-    }),
+  schema: materiellSkjema,
 });
 
-export const collections = { epoker, materiell, signal };
+// Fase 5: engelsk innhold i egne filer, samme skjema og samme slug som den norske motparten.
+const epokerEn = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/en/epoker' }),
+  schema: stasjon,
+});
+
+const signalEn = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/en/signal' }),
+  schema: stasjon,
+});
+
+const materiellEn = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/en/materiell' }),
+  schema: materiellSkjema,
+});
+
+export const collections = { epoker, materiell, signal, epokerEn, signalEn, materiellEn };

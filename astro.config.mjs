@@ -12,6 +12,12 @@ export default defineConfig({
   site,
   base,
   output: 'static',
+  // Fase 5: norsk på dagens adresser, engelsk under /en/ (egne sidefiler, se src/i18n/).
+  i18n: {
+    locales: ['nb', 'en'],
+    defaultLocale: 'nb',
+    routing: { prefixDefaultLocale: false },
+  },
   trailingSlash: 'always',
   build: {
     format: 'directory',

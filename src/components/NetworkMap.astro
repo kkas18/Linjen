@@ -1,8 +1,12 @@
 ---
 // Nettverkskart over tid (6.1): skjematisk SVG, årstallsglidebryter og avspilling.
-import { segmenter, TYPER, TYPENAVN } from '../lib/nettverk';
+import { segmenter, segmentnavn, TYPER } from '../lib/nettverk';
 import { arTekst, hentEpoker } from '../lib/epoker';
-import { url } from '../lib/url';
+import { ordbok, rute, sprak } from '../i18n';
+
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang).nettverk;
+const lesMer = ordbok(lang).felles.lesMer;
 
 const START = 1875;
 const SLUTT = new Date().getFullYear();
@@ -13,14 +17,14 @@ const sortert = [...segmenter].sort(
   (a, b) => rekkefolge.indexOf(a.type) - rekkefolge.indexOf(b.type),
 );
 
-const epoker = (await hentEpoker())
+const epoker = (await hentEpoker(lang))
   .filter((e) => e.data.ar !== null)
   .map((e) => ({
     ar: e.data.ar,
     arTekst: arTekst(e.data),
     tittel: e.data.tittel,
     ingress: e.data.ingress,
-    href: url(`/epoker/${e.data.slug}/`),
+    href: rute(lang, 'epoke', e.data.slug),
   }));
 
 const iDrift = (ar: number) =>
@@ -30,14 +34,14 @@ const gjeldende = [...epoker].reverse().find((e) => e.ar !== null && e.ar <= SLU
 
 <div class="nettverk" data-nettverk data-start={START} data-slutt={SLUTT}>
   <div class="nettverk__kart">
-    <p class="t-etikett nettverk__merke">Forenklet skjematisk kart</p>
+    <p class="t-etikett nettverk__merke">{t.forenklet}</p>
     <svg
       class="nettverk__svg"
       viewBox="0 0 760 480"
       role="img"
       aria-labelledby="nettverk-svg-tittel"
     >
-      <title id="nettverk-svg-tittel">Skjematisk kart over Sporveiens nett for valgt år</title>
+      <title id="nettverk-svg-tittel">{t.svgTittel}</title>
       {sortert.map((s) => (
         <path
           class={`seg seg--${s.type}`}
@@ -53,25 +57,27 @@ const gjeldende = [...epoker].reverse().find((e) => e.ar !== null && e.ar <= SLU
                 : 'aktiv'
           }
         >
-          <title>{`${s.navn} (${s.apnet}${s.nedlagt ? `–${s.nedlagt}` : ''})`}</title>
+          <title>
+              {`${segmentnavn(s, lang)} (${s.apnet}${s.nedlagt ? `–${s.nedlagt}` : ''})`}
+            </title>
         </path>
       ))}
     </svg>
 
-    <ul class="nettverk__forklaring" aria-label="Linjetyper">
-      {TYPER.map((t) => (
+    <ul class="nettverk__forklaring" aria-label={t.linjetyper}>
+      {TYPER.map((type) => (
         <li>
           <svg class="nettverk__prove" viewBox="0 0 32 8" aria-hidden="true">
-            <line class={`seg seg--${t}`} x1="0" y1="4" x2="32" y2="4" data-tilstand="aktiv" />
+            <line class={`seg seg--${type}`} x1="0" y1="4" x2="32" y2="4" data-tilstand="aktiv" />
           </svg>
-          {TYPENAVN[t]}
+          {t.typer[type]}
         </li>
       ))}
       <li>
         <svg class="nettverk__prove" viewBox="0 0 32 8" aria-hidden="true">
           <line class="seg seg--trikk" x1="0" y1="4" x2="32" y2="4" data-tilstand="nedlagt" />
         </svg>
-        Nedlagt
+        {t.nedlagt}
       </li>
     </ul>
   </div>
@@ -79,7 +85,7 @@ const gjeldende = [...epoker].reverse().find((e) => e.ar !== null && e.ar <= SLU
   <div class="nettverk__panel">
     <div class="nettverk__styring">
       <label class="t-etikett" for="nettverk-ar">
-        År
+        {t.ar}
       </label>
       <output class="t-display nettverk__ar" for="nettverk-ar" data-nettverk-ar>
         {SLUTT}
@@ -95,13 +101,24 @@ const gjeldende = [...epoker].reverse().find((e) => e.ar !== null && e.ar <= SLU
         data-nettverk-glider
       />
       <div class="nettverk__knapper">
-        <button class="nettverk__spill t-etikett" type="button" data-nettverk-spill>
-          Spill av
+        <button
+          class="nettverk__spill t-etikett"
+          type="button"
+          data-nettverk-spill
+          data-tekst-spill={t.spill}
+          data-tekst-pause={t.pause}
+        >
+          {t.spill}
         </button>
-        <span class="t-bildetekst nettverk__hint">Piltastene flytter ett år</span>
+        <span class="t-bildetekst nettverk__hint">{t.hint}</span>
       </div>
-      <p class="visuelt-skjult" aria-live="polite" data-nettverk-status>
-        {SLUTT}: {iDrift(SLUTT)} strekninger i drift
+      <p
+        class="visuelt-skjult"
+        aria-live="polite"
+        data-nettverk-status
+        data-tekst-i-drift={t.iDrift}
+      >
+        {SLUTT}: {iDrift(SLUTT)} {t.iDrift}
       </p>
     </div>
 
@@ -120,7 +137,7 @@ const gjeldende = [...epoker].reverse().find((e) => e.ar !== null && e.ar <= SLU
         {gjeldende?.ingress}
       </p>
       <a class="nettverk__hendelse-lenke" href={gjeldende?.href} data-nettverk-epoke-lenke>
-        Les mer om epoken <span aria-hidden="true">→</span>
+        {lesMer} <span aria-hidden="true">→</span>
       </a>
     </section>
   </div>

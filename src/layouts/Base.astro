@@ -12,6 +12,7 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { url } from '../lib/url';
 import { TEMAFARGE } from '../../pwa.config.mjs';
+import { alternativ, finnSide, ordbok, sprak, utenBase } from '../i18n';
 
 interface Props {
   tittel: string;
@@ -20,27 +21,45 @@ interface Props {
   indekser?: boolean; // false = noindex (brukes av interne maler)
 }
 
-const { tittel, beskrivelse, ogBilde = 'og/forside.png', indekser = true } = Astro.props;
-const fullTittel = tittel === 'Linjen' ? 'Linjen – Sporveiens historie' : `${tittel} · Linjen`;
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang);
+const {
+  tittel,
+  beskrivelse,
+  ogBilde = lang === 'en' ? 'og/en-forside.png' : 'og/forside.png',
+  indekser = true,
+} = Astro.props;
+const fullTittel = tittel === 'Linjen' ? t.meta.nettstedNavn : `${tittel} · Linjen`;
 const kanonisk = new URL(Astro.url.pathname, Astro.site);
 const ogUrl = new URL(url(`/${ogBilde}`), Astro.site);
+// hreflang-alternativer for sider som finnes på begge språk (ikke 404).
+const harAlternativ = indekser && finnSide(utenBase(Astro.url.pathname)) !== null;
+const hrefNb = new URL(alternativ(Astro.url.pathname, 'nb'), Astro.site);
+const hrefEn = new URL(alternativ(Astro.url.pathname, 'en'), Astro.site);
 ---
 
 <!doctype html>
-<html lang="nb">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTittel}</title>
     <meta name="description" content={beskrivelse} />
     <link rel="canonical" href={kanonisk} />
+    {harAlternativ && (
+      <>
+        <link rel="alternate" hreflang="nb" href={hrefNb} />
+        <link rel="alternate" hreflang="en" href={hrefEn} />
+        <link rel="alternate" hreflang="x-default" href={hrefNb} />
+      </>
+    )}
     {!indekser && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content={TEMAFARGE} />
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={url('/icons/apple-touch-icon.png')} />
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="nb_NO" />
+    <meta property="og:locale" content={t.meta.ogLocale} />
     <meta property="og:title" content={fullTittel} />
     <meta property="og:description" content={beskrivelse} />
     <meta property="og:url" content={kanonisk} />
@@ -66,7 +85,7 @@ const ogUrl = new URL(url(`/${ogBilde}`), Astro.site);
   </head>
   <body>
     <a class="hopp-lenke" href="#innhold">
-      Hopp til innhold
+      {t.meta.hoppTilInnhold}
     </a>
     <Nav />
     <main id="innhold" tabindex="-1">

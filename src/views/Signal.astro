@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import TrackLine from '../components/TrackLine.astro';
+import Station from '../components/Station.astro';
+import SignalDemo from '../components/SignalDemo.astro';
+
+import { hentSignal } from '../lib/epoker';
+import { ordbok, sprak } from '../i18n';
+
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang).signal;
+const stasjoner = await hentSignal(lang);
+---
+
+<Base tittel={t.sideTittel} beskrivelse={t.sideBeskrivelse}>
+  <header class="side ramme">
+    <p class="t-etikett side__etikett">{t.etikett}</p>
+    <h1>{t.sideTittel}</h1>
+    <p class="t-ingress">{t.ingress}</p>
+  </header>
+
+  <TrackLine>
+    {stasjoner.map((s) => (
+      <Station epoke={s} fraAr={null} lenke={null} />
+    ))}
+  </TrackLine>
+
+  <div class="ramme demo-ramme">
+    <SignalDemo />
+  </div>
+</Base>
+
+<script>
+  import { initMotion } from '../scripts/motion';
+
+  initMotion();
+</script>
+
+<style>
+  .side {
+    display: grid;
+    gap: var(--s-4);
+    padding-block: var(--s-8) var(--s-5);
+  }
+
+  .side__etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  .demo-ramme {
+    padding-block: var(--s-8) 0;
+  }
+
+  @media (min-width: 48rem) {
+    .side,
+    .demo-ramme {
+      padding-left: var(--stasjon-innrykk);
+    }
+  }
+</style>

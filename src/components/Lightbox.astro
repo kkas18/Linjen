@@ -1,5 +1,7 @@
 ---
 // Lysboks (6.3): native <dialog> med tastatur (←/→/Esc) og sveip. Bildene kommer fra galleriet.
+import { ordbok, sprak } from '../i18n';
+
 export interface LysboksBilde {
   src: string | null; // null = plassholder («Bilde kommer»)
   alt: string;
@@ -13,12 +15,19 @@ interface Props {
 }
 
 const { id, bilder } = Astro.props;
+const t = ordbok(sprak(Astro.currentLocale));
 ---
 
-<dialog class="lysboks" id={id} aria-label="Bildevisning" data-lysboks>
+<dialog
+  class="lysboks"
+  id={id}
+  aria-label={t.lysboks.bildevisning}
+  data-lysboks
+  data-bilde-kommer={t.felles.bildeKommer}
+>
   <div class="lysboks__ramme">
     <button class="lysboks__lukk t-etikett" type="button" data-lysboks-lukk>
-      Lukk <span aria-hidden="true">×</span>
+      {t.lysboks.lukk} <span aria-hidden="true">×</span>
     </button>
 
     <figure class="lysboks__figur">
@@ -30,11 +39,16 @@ const { id, bilder } = Astro.props;
     </figure>
 
     <div class="lysboks__nav">
-      <button class="lysboks__pil" type="button" aria-label="Forrige bilde" data-lysboks-forrige>
+      <button
+        class="lysboks__pil"
+        type="button"
+        aria-label={t.lysboks.forrige}
+        data-lysboks-forrige
+      >
         <span aria-hidden="true">←</span>
       </button>
       <span class="t-mono lysboks__teller" aria-live="polite" data-lysboks-teller></span>
-      <button class="lysboks__pil" type="button" aria-label="Neste bilde" data-lysboks-neste>
+      <button class="lysboks__pil" type="button" aria-label={t.lysboks.neste} data-lysboks-neste>
         <span aria-hidden="true">→</span>
       </button>
     </div>

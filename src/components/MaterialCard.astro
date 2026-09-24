@@ -5,7 +5,7 @@ import type { CollectionEntry } from 'astro:content';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
 
 interface Props {
-  vogn: CollectionEntry<'materiell'>;
+  vogn: CollectionEntry<'materiell'> | CollectionEntry<'materiellEn'>;
 }
 
 const { data } = Astro.props.vogn;

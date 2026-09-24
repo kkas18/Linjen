@@ -1,33 +1,35 @@
 ---
 // Avslutning (5.6): setning om framtiden, tidslinje og lenker videre.
 import Timeline from './Timeline.astro';
-import { url } from '../lib/url';
 import type { Epoke } from '../lib/epoker';
+import { ordbok, rute, sprak } from '../i18n';
 
 interface Props {
   epoker: Epoke[];
 }
 
 const { epoker } = Astro.props;
+const lang = sprak(Astro.currentLocale);
+const t = ordbok(lang).avslutning;
 ---
 
 <section class="avslutning ramme" aria-labelledby="avslutning-tittel">
-  <p class="t-etikett avslutning__etikett">Veien videre</p>
+  <p class="t-etikett avslutning__etikett">{t.etikett}</p>
   <h2 class="t-h1 avslutning__setning" id="avslutning-tittel">
-    Nye trikker, nytt signalsystem og nye tunneler – linjen fortsetter.
+    {t.setning}
   </h2>
 
   <Timeline epoker={epoker} />
 
   <ul class="avslutning__lenker">
     <li>
-      <a href={url('/nettverket/')}>
-        Se nettverket vokse <span aria-hidden="true">→</span>
+      <a href={rute(lang, 'nettverket')}>
+        {t.nettverket} <span aria-hidden="true">→</span>
       </a>
     </li>
     <li>
-      <a href={url('/kilder/')}>
-        Kilder og bildekreditering <span aria-hidden="true">→</span>
+      <a href={rute(lang, 'kilder')}>
+        {t.kilder} <span aria-hidden="true">→</span>
       </a>
     </li>
   </ul>

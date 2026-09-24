@@ -3,6 +3,7 @@
 import { Picture } from 'astro:assets';
 import type { Stasjon } from '../lib/epoker';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import { ordbok, sprak } from '../i18n';
 
 interface Props {
   forEtter: NonNullable<Stasjon['data']['forEtter']>;
@@ -10,6 +11,7 @@ interface Props {
 
 const { forEtter } = Astro.props;
 const { for: bildeFor, etter: bildeEtter, sted } = forEtter;
+const t = ordbok(sprak(Astro.currentLocale)).forEtter;
 ---
 
 <figure class="for-etter">
@@ -25,7 +27,7 @@ const { for: bildeFor, etter: bildeEtter, sted } = forEtter;
           loading="lazy"
         />
       ) : (
-        <PhotoPlaceholder fyll etikett="Etter: bilde kommer" />
+        <PhotoPlaceholder fyll etikett={t.etterKommer} />
       )}
     </div>
     <div class="for-etter__lag for-etter__lag--for">
@@ -39,15 +41,15 @@ const { for: bildeFor, etter: bildeEtter, sted } = forEtter;
           loading="lazy"
         />
       ) : (
-        <PhotoPlaceholder fyll tone="mork" etikett="Før: bilde kommer" />
+        <PhotoPlaceholder fyll tone="mork" etikett={t.forKommer} />
       )}
     </div>
 
     <span class="t-etikett for-etter__merke for-etter__merke--for" aria-hidden="true">
-      Før
+      {t.for}
     </span>
     <span class="t-etikett for-etter__merke for-etter__merke--etter" aria-hidden="true">
-      Etter
+      {t.etter}
     </span>
     <span class="for-etter__handtak" aria-hidden="true"></span>
 
@@ -57,8 +59,9 @@ const { for: bildeFor, etter: bildeEtter, sted } = forEtter;
       min="0"
       max="100"
       value="50"
-      aria-label="Sammenlign før og etter: andel av førbildet som vises"
-      aria-valuetext="50 % før"
+      aria-label={t.glider}
+      aria-valuetext={`50 ${t.verdi}`}
+      data-verdi-tekst={t.verdi}
       data-for-etter-glider
     />
   </div>
@@ -172,7 +175,7 @@ const { for: bildeFor, etter: bildeEtter, sted } = forEtter;
     const glider = flate.querySelector<HTMLInputElement>('[data-for-etter-glider]');
     glider?.addEventListener('input', () => {
       flate.style.setProperty('--pos', `${glider.value}%`);
-      glider.setAttribute('aria-valuetext', `${glider.value} % før`);
+      glider.setAttribute('aria-valuetext', `${glider.value} ${glider.dataset.verdiTekst ?? ''}`);
     });
   });
 </script>
