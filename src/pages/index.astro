@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  tittel="Linjen"
+  beskrivelse="Historien om hvordan hester, trikker og tog formet Oslo – fortalt stasjon for stasjon."
+>
+  <section class="midlertidig ramme" id="stasjoner">
+    <p class="t-etikett">Sporveien · 1875 – i dag</p>
+    <h1>Linjen gjennom byen</h1>
+    <p class="t-ingress">
+      Historien om hvordan hester, trikker og tog formet Oslo – fortalt stasjon for stasjon.
+    </p>
+  </section>
+</Base>
+
+<style>
+  /* Midlertidig forside for fase 0. Erstattes av Hero og stasjoner i fase 1. */
+  .midlertidig {
+    display: grid;
+    gap: var(--s-5);
+    padding-block: var(--s-9);
+  }
+
+  .midlertidig .t-etikett {
+    color: var(--c-grafitt-2);
+  }
+</style>

@@ -1,0 +1,248 @@
+---
+import { url } from '../lib/url';
+
+const lenker = [
+  { href: url('/#stasjoner'), tekst: 'Epoker', sti: '/epoker/' },
+  { href: url('/materiell/'), tekst: 'Materiell', sti: '/materiell/' },
+  { href: url('/nettverket/'), tekst: 'Nettverket', sti: '/nettverket/' },
+  { href: url('/signal/'), tekst: 'Signal', sti: '/signal/' },
+  { href: url('/kilder/'), tekst: 'Kilder', sti: '/kilder/' },
+];
+
+const gjeldende = Astro.url.pathname;
+const erAktiv = (sti: string) => gjeldende.startsWith(url(sti));
+---
+
+<header class="nav">
+  <div class="nav__indre ramme">
+    <a class="nav__ordmerke" href={url('/')}>
+      Linjen
+    </a>
+
+    <nav class="nav__hoved" aria-label="Hovedmeny">
+      <ul class="nav__liste">
+        {lenker.map((l) => (
+          <li>
+            <a class="nav__lenke" href={l.href} aria-current={erAktiv(l.sti) ? 'page' : undefined}>
+              {l.tekst}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <button
+      class="nav__knapp t-etikett"
+      type="button"
+      aria-expanded="false"
+      aria-controls="mobilmeny"
+      data-menyknapp
+    >
+      <span class="nav__knapp-strek" aria-hidden="true"></span>
+      <span data-menyknapp-tekst>Meny</span>
+    </button>
+  </div>
+</header>
+
+<div class="meny" id="mobilmeny" data-meny data-apen="false">
+  <nav aria-label="Mobilmeny">
+    <ul class="meny__liste ramme">
+      {lenker.map((l) => (
+        <li>
+          <a class="meny__lenke" href={l.href} aria-current={erAktiv(l.sti) ? 'page' : undefined}>
+            {l.tekst}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</div>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    height: var(--nav-hoyde);
+    background: color-mix(in srgb, var(--c-perrong) 92%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: var(--linje-tynn) solid var(--c-skinne);
+  }
+
+  .nav__indre {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-5);
+  }
+
+  .nav__ordmerke {
+    font-family: var(--f-serif);
+    font-size: 1.375rem;
+    font-weight: 500;
+    font-optical-sizing: auto;
+    text-decoration: none;
+    color: var(--c-grafitt);
+  }
+
+  .nav__hoved {
+    display: none;
+  }
+
+  .nav__liste {
+    display: flex;
+    gap: var(--s-5);
+    list-style: none;
+    padding: 0;
+  }
+
+  .nav__lenke {
+    font-size: 0.9375rem;
+    text-decoration: none;
+    color: var(--c-grafitt-2);
+    padding-block: var(--s-2);
+    border-bottom: var(--linje-tynn) solid transparent;
+    transition:
+      color var(--t-rask) var(--ease-out),
+      border-color var(--t-rask) var(--ease-out);
+  }
+
+  .nav__lenke:hover,
+  .nav__lenke[aria-current='page'] {
+    color: var(--c-grafitt);
+    border-color: var(--c-trikkebla);
+  }
+
+  .nav__knapp {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 2.75rem;
+    padding-inline: var(--s-2);
+    margin-right: calc(var(--s-2) * -1);
+    color: var(--c-grafitt);
+  }
+
+  /* To tynne streker som samles til én (dørene lukkes) når menyen er åpen */
+  .nav__knapp-strek {
+    position: relative;
+    width: 1.125rem;
+    height: var(--linje-tynn);
+    background: currentColor;
+    transform: translateY(-3px);
+    transition: transform var(--t-rask) var(--ease-out);
+  }
+
+  .nav__knapp-strek::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    transform: translateY(6px);
+    transition: transform var(--t-rask) var(--ease-out);
+  }
+
+  .nav__knapp[aria-expanded='true'] .nav__knapp-strek {
+    transform: rotate(45deg);
+  }
+
+  .nav__knapp[aria-expanded='true'] .nav__knapp-strek::after {
+    transform: rotate(-90deg);
+  }
+
+  /* Helskjermsmeny med vertikal «perrongdør»-wipe */
+  .meny {
+    position: fixed;
+    inset: var(--nav-hoyde) 0 0;
+    z-index: 40;
+    background: var(--c-perrong);
+    overflow-y: auto;
+    clip-path: inset(0 50% 0 50%);
+    visibility: hidden;
+    transition:
+      clip-path var(--t-normal) var(--ease-inout),
+      visibility 0s linear var(--t-normal);
+  }
+
+  .meny[data-apen='true'] {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+    transition:
+      clip-path var(--t-normal) var(--ease-inout),
+      visibility 0s;
+  }
+
+  .meny__liste {
+    list-style: none;
+    padding-block: var(--s-7);
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .meny__lenke {
+    display: block;
+    padding-block: var(--s-2);
+    font-family: var(--f-serif);
+    font-size: var(--fs-h2);
+    font-weight: 500;
+    font-optical-sizing: auto;
+    line-height: var(--lh-overskrift);
+    text-decoration: none;
+    color: var(--c-grafitt);
+    border-bottom: var(--linje-tynn) solid var(--c-skinne);
+  }
+
+  .meny__lenke[aria-current='page'] {
+    color: var(--c-trikkebla);
+  }
+
+  @media (min-width: 48rem) {
+    .nav__hoved {
+      display: block;
+    }
+
+    .nav__knapp,
+    .meny {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Mobilmeny: åpne/lukke, Esc, fokusfelle via `inert` på resten av siden.
+  const knapp = document.querySelector<HTMLButtonElement>('[data-menyknapp]');
+  const tekst = document.querySelector<HTMLElement>('[data-menyknapp-tekst]');
+  const meny = document.querySelector<HTMLElement>('[data-meny]');
+  const utenfor = document.querySelectorAll<HTMLElement>('main, footer, .hopp-lenke');
+  const desktop = window.matchMedia('(min-width: 48rem)');
+
+  function settApen(apen: boolean, returnerFokus = true) {
+    if (!knapp || !meny) return;
+    knapp.setAttribute('aria-expanded', String(apen));
+    knapp.setAttribute('aria-label', apen ? 'Lukk meny' : 'Åpne meny');
+    if (tekst) tekst.textContent = apen ? 'Lukk' : 'Meny';
+    meny.dataset.apen = String(apen);
+    document.documentElement.style.overflow = apen ? 'hidden' : '';
+    utenfor.forEach((el) => (el.inert = apen));
+    if (apen) meny.querySelector<HTMLAnchorElement>('a')?.focus();
+    else if (returnerFokus) knapp.focus();
+  }
+
+  knapp?.addEventListener('click', () => {
+    settApen(knapp.getAttribute('aria-expanded') !== 'true');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && knapp?.getAttribute('aria-expanded') === 'true') settApen(false);
+  });
+
+  meny?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) settApen(false, false);
+  });
+
+  desktop.addEventListener('change', (e) => {
+    if (e.matches) settApen(false, false);
+  });
+</script>

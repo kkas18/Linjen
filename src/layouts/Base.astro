@@ -1,0 +1,58 @@
+---
+import '@fontsource-variable/source-serif-4/opsz.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/ibm-plex-mono/300.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/type.css';
+
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  tittel: string;
+  beskrivelse: string;
+}
+
+const { tittel, beskrivelse } = Astro.props;
+const fullTittel = tittel === 'Linjen' ? 'Linjen – Sporveiens historie' : `${tittel} · Linjen`;
+const kanonisk = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTittel}</title>
+    <meta name="description" content={beskrivelse} />
+    <link rel="canonical" href={kanonisk} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="nb_NO" />
+    <meta property="og:title" content={fullTittel} />
+    <meta property="og:description" content={beskrivelse} />
+    <meta property="og:url" content={kanonisk} />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <a class="hopp-lenke" href="#innhold">
+      Hopp til innhold
+    </a>
+    <Nav />
+    <main id="innhold" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main {
+    padding-top: var(--nav-hoyde);
+  }
+
+  main:focus {
+    outline: none;
+  }
+</style>

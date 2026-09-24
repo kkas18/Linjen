@@ -1,0 +1,29 @@
+---
+// Grå flate som brukes når eiers bilde mangler (arbeidsregel 4).
+interface Props {
+  forhold?: string; // f.eks. '3 / 2'
+  etikett?: string;
+}
+
+const { forhold = '3 / 2', etikett } = Astro.props;
+---
+
+<div
+  class="plassholder"
+  style={`aspect-ratio: ${forhold}`}
+  role="img"
+  aria-label={etikett ?? 'Bilde kommer'}
+>
+  <span class="t-etikett">Bilde kommer</span>
+</div>
+
+<style>
+  .plassholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    background: var(--c-plassholder);
+    color: var(--c-grafitt);
+    border-radius: var(--r-bilde);
+  }
+</style>

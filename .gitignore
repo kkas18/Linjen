@@ -1,0 +1,23 @@
+# bygg
+dist/
+.astro/
+
+# avhengigheter
+node_modules/
+
+# logger
+npm-debug.log*
+
+# miljø
+.env
+.env.*
+
+# test
+test-results/
+playwright-report/
+.lighthouseci/
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json

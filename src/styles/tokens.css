@@ -1,0 +1,97 @@
+/* Designtokens – eneste kilde for farger, avstander, radier, typografi og tider. */
+
+:root {
+  /* Flater */
+  --c-perrong: #edeff1; /* hovedbakgrunn, kjølig lys grå – IKKE krem */
+  --c-flate: #ffffff;
+  --c-tunnel: #0f1216; /* mørke seksjoner */
+  --c-tunnel-2: #181c22;
+
+  /* Tekst */
+  --c-grafitt: #15181c;
+  --c-grafitt-2: #535b66;
+  --c-lys-tekst: #e7eaee;
+  --c-lys-tekst-2: #9aa3ae;
+
+  /* Linjer */
+  --c-skinne: #b9c0c8; /* sporlinje på lys bakgrunn */
+  --c-skinne-mork: #3a414b;
+
+  /* Aksent */
+  --c-trikkebla: #1d4f9a; /* eneste merkevare-aksent */
+
+  /* Signal – KUN på signalelementer og statusmerker */
+  --c-sig-rod: #d22b3a;
+  --c-sig-gul: #edb316;
+  --c-sig-gronn: #1c9b5b;
+  --c-sig-av: #2a2f36;
+
+  /* Plassholder for bilder */
+  --c-plassholder: var(--c-skinne);
+
+  /* Bevegelse */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-rask: 180ms;
+  --t-normal: 420ms;
+  --t-sakte: 900ms;
+
+  /* Avstandsskala: 4, 8, 12, 16, 24, 32, 48, 72, 112, 160 px */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4.5rem;
+  --s-9: 7rem;
+  --s-10: 10rem;
+
+  /* Form */
+  --r-bilde: 2px;
+  --r-ingen: 0;
+  --linje-tynn: 1px;
+  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.08);
+
+  /* Fokus */
+  --fokus-bredde: 2px;
+  --fokus-avstand: 2px;
+
+  /* Layout */
+  --maks-bredde: 80rem; /* 1280 px */
+  --kolonner: 4;
+  --marg: 1.25rem; /* 20 px mobil */
+  --spalte: var(--s-4);
+  --nav-hoyde: 3.5rem; /* 56 px */
+  --sporlinje-x: 4rem; /* 64 px, desktop */
+  --tekst-maks: 66ch;
+
+  /* Fonter */
+  --f-serif: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
+  --f-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Typografiskala: mobil (360 px) → desktop (1280 px) */
+  --fs-display: clamp(4rem, 1.652rem + 10.435vw, 10rem); /* 64 → 160 */
+  --fs-h1: clamp(2.5rem, 1.326rem + 5.217vw, 5.5rem); /* 40 → 88 */
+  --fs-h2: clamp(1.875rem, 1.239rem + 2.826vw, 3.5rem); /* 30 → 56 */
+  --fs-ingress: clamp(1.1875rem, 1.065rem + 0.543vw, 1.5rem); /* 19 → 24 */
+  --fs-brod: clamp(1.0625rem, 1.038rem + 0.109vw, 1.125rem); /* 17 → 18 */
+  --fs-etikett: clamp(0.75rem, 0.726rem + 0.109vw, 0.8125rem); /* 12 → 13 */
+  --fs-bildetekst: 0.8125rem; /* 13 */
+
+  --lh-tett: 1.05;
+  --lh-overskrift: 1.1;
+  --lh-ingress: 1.45;
+  --lh-brod: 1.6;
+  --sperring-etikett: 0.12em;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --kolonner: 12;
+    --marg: 3rem; /* 48 px desktop */
+    --spalte: var(--s-5);
+  }
+}
