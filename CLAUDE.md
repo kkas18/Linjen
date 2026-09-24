@@ -31,7 +31,7 @@ fonter eller layout, og ikke legg til biblioteker som ikke står her uten å sp�
 
 | Del | Valg |
 |---|---|
-| Rammeverk | Astro 5 (statisk output), TypeScript |
+| Rammeverk | Astro 7 (statisk output), TypeScript |
 | Innhold | Astro Content Collections (Markdown + frontmatter, validert med Zod) |
 | Animasjon | GSAP 3 med ScrollTrigger og SplitText (gratis) |
 | Myk scroll | Lenis (koblet til GSAP ticker) |

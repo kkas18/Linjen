@@ -1,4 +1,5 @@
-import { defineCollection, z, type SchemaContext } from 'astro:content';
+import { defineCollection, type SchemaContext } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 // Felles bildefelter (kapittel 7). Bygget feiler hvis alt, lisens eller kilde mangler.
@@ -10,7 +11,7 @@ const bilde = ({ image }: SchemaContext) =>
     fotograf: z.string().optional(),
     arkiv: z.string().optional(),
     lisens: z.string().min(1, 'Bildet mangler lisens'),
-    kilde: z.string().url('Bildet mangler gyldig kilde-URL'),
+    kilde: z.url('Bildet mangler gyldig kilde-URL'),
   });
 
 const epoker = defineCollection({
