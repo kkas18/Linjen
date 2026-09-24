@@ -87,7 +87,7 @@ signal: {
 - **Hva du kan endre:** `navn` og `forklaring`. Knappen går gjennom signalbildene i rekkefølgen de står i listen.
 - **Lampene:** `tilstand` avgjør hvilken lampe som lyser. Mulige verdier er `rod`, `gul` og `gronn`, og signalet har tre lamper i den rekkefølgen, ovenfra og ned.
 - **Andre signalbilder:** Trenger Sporveien signalbilder som ikke lar seg vise med én tent lampe av tre, for eksempel to lamper eller blink, krever det en kodeendring. Si fra, så bygger jeg det.
-- **Tester:** Endrer du antall signalbilder eller rekkefølgen på tilstandene, må testen `signaldemo går gjennom tre signalbilder` i `tests/nettsted.spec.ts` oppdateres. Ellers blir `Kvalitet` rød.
+- **Tester:** Testen av signaldemoen leser signalbildene fra siden, så du kan endre antall, rekkefølge og tekster uten å endre testen.
 - **Merkingen «Forenklet»:** Skal stå så lenge demoen bruker generelle signalbilder og ikke Sporveiens egne.
 
 **Begge språk:** Endre alltid både `nb.ts` og `en.ts`. TypeScript krever at de har de samme feltene.

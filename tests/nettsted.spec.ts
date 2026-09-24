@@ -1,10 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
+import { FORSTE, MED_FOR_ETTER, UTVALG } from './innhold';
 
+// Epokesidene hentes fra innholdsfilene, så testene ikke låses til bestemte slugs.
 const SIDER = [
   '',
-  'epoker/hestesporveien/',
-  'epoker/t-banen/',
-  'epoker/framtiden/',
+  ...UTVALG.map((slug) => `epoker/${slug}/`),
   'nettverket/',
   'signal/',
   'materiell/',
@@ -14,9 +14,7 @@ const SIDER = [
 
 const SIDER_EN = [
   'en/',
-  'en/eras/hestesporveien/',
-  'en/eras/t-banen/',
-  'en/eras/framtiden/',
+  ...UTVALG.map((slug) => `en/eras/${slug}/`),
   'en/network/',
   'en/signalling/',
   'en/rolling-stock/',
@@ -25,6 +23,14 @@ const SIDER_EN = [
 ];
 
 const BREDDER = [360, 390, 768, 1280, 1920];
+
+/** En epoke fra nettverkskartets egne data (andre epoke hvis den finnes), til å velge et år. */
+async function velgEpoke(page: Page): Promise<{ ar: number; tittel: string }> {
+  const tekst = await page.locator('[data-nettverk-epoker]').textContent();
+  const epoker: { ar: number; tittel: string }[] = JSON.parse(tekst ?? '[]');
+  expect(epoker.length).toBeGreaterThan(0);
+  return epoker[Math.min(1, epoker.length - 1)];
+}
 
 /** Samler JS-feil på siden. */
 function feilfanger(page: Page): string[] {
@@ -84,22 +90,25 @@ test.describe('engelsk versjon (fase 5)', () => {
   });
 
   test('språkvelgeren går til samme side på det andre språket', async ({ page }) => {
-    await page.goto('epoker/ringen/');
+    const slug = UTVALG[UTVALG.length - 1];
+    await page.goto(`epoker/${slug}/`);
+    const norskTittel = await page.locator('h1').textContent();
     await page.locator('.nav__sprak').click();
-    await expect(page).toHaveURL(/\/en\/eras\/ringen\/$/);
+    await expect(page).toHaveURL(new RegExp(`/en/eras/${slug}/$`));
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.locator('h1')).toHaveText('The Ring');
+    await expect(page.locator('h1')).not.toBeEmpty();
     await page.locator('.nav__sprak').click();
-    await expect(page).toHaveURL(/\/epoker\/ringen\/$/);
-    await expect(page.locator('h1')).toHaveText('Ringen');
+    await expect(page).toHaveURL(new RegExp(`/epoker/${slug}/$`));
+    await expect(page.locator('h1')).toHaveText(norskTittel ?? '');
   });
 
   test('engelsk nettverkskart viser engelske hendelser og knapper', async ({ page }) => {
     await page.goto('en/network/');
+    const epoke = await velgEpoke(page);
     const glider = page.locator('[data-nettverk-glider]');
-    await glider.fill('1900');
+    await glider.fill(String(epoke.ar));
     await glider.dispatchEvent('change');
-    await expect(page.locator('[data-nettverk-epoke-tittel]')).toHaveText('Railways to the hills');
+    await expect(page.locator('[data-nettverk-epoke-tittel]')).toHaveText(epoke.tittel);
     await expect(page.locator('[data-nettverk-status]')).toContainText('lines in service');
     const spill = page.locator('[data-nettverk-spill]');
     await expect(spill).toHaveText('Play');
@@ -110,7 +119,7 @@ test.describe('engelsk versjon (fase 5)', () => {
 
   test('sitemap har begge språk med hreflang', async ({ request, baseURL }) => {
     const sitemap = await (await request.get(`${baseURL}sitemap.xml`)).text();
-    expect(sitemap).toContain('/en/eras/hestesporveien/');
+    expect(sitemap).toContain(`/en/eras/${FORSTE}/`);
     expect(sitemap).toContain('hreflang="en"');
   });
 
@@ -176,15 +185,16 @@ test.describe('tilgjengelighet', () => {
 test.describe('signaturfunksjoner', () => {
   test('nettverkskart: glider, piltaster, avspilling og aria-live', async ({ page }) => {
     await page.goto('nettverket/');
+    const epoke = await velgEpoke(page);
     const glider = page.locator('[data-nettverk-glider]');
-    await glider.fill('1900');
+    await glider.fill(String(epoke.ar));
     await glider.dispatchEvent('change');
-    await expect(page.locator('[data-nettverk-ar]')).toHaveText('1900');
-    await expect(page.locator('[data-nettverk-status]')).toContainText('1900');
-    await expect(page.locator('[data-nettverk-epoke-tittel]')).toHaveText('Banene til åsene');
+    await expect(page.locator('[data-nettverk-ar]')).toHaveText(String(epoke.ar));
+    await expect(page.locator('[data-nettverk-status]')).toContainText(String(epoke.ar));
+    await expect(page.locator('[data-nettverk-epoke-tittel]')).toHaveText(epoke.tittel);
     await glider.focus();
     await page.keyboard.press('ArrowRight');
-    await expect(page.locator('[data-nettverk-ar]')).toHaveText('1901');
+    await expect(page.locator('[data-nettverk-ar]')).toHaveText(String(epoke.ar + 1));
 
     const spill = page.locator('[data-nettverk-spill]');
     await spill.click();
@@ -192,38 +202,48 @@ test.describe('signaturfunksjoner', () => {
     await page.waitForTimeout(500);
     await spill.click();
     await expect(spill).toHaveAttribute('aria-pressed', 'false');
-    expect(Number(await page.locator('[data-nettverk-ar]').textContent())).toBeGreaterThan(1901);
+    expect(Number(await page.locator('[data-nettverk-ar]').textContent())).toBeGreaterThan(
+      epoke.ar + 1,
+    );
   });
 
-  test('signaldemo går gjennom tre signalbilder', async ({ page }) => {
+  test('signaldemo går gjennom alle signalbildene og starter på nytt', async ({ page }) => {
     await page.goto('signal/');
+    const bilder: { tilstand: string; navn: string }[] = JSON.parse(
+      (await page.locator('[data-demo-bilder]').textContent()) ?? '[]',
+    );
+    expect(bilder.length).toBeGreaterThan(1);
     const signal = page.locator('[data-demo-signal]');
     const knapp = page.locator('[data-demo-knapp]');
-    await expect(signal).toHaveAttribute('data-tilstand', 'rod');
-    await knapp.click();
-    await expect(signal).toHaveAttribute('data-tilstand', 'gul');
-    await knapp.click();
-    await expect(signal).toHaveAttribute('data-tilstand', 'gronn');
-    await knapp.click();
-    await expect(signal).toHaveAttribute('data-tilstand', 'rod');
+    for (let i = 0; i <= bilder.length; i++) {
+      const b = bilder[i % bilder.length];
+      await expect(signal).toHaveAttribute('data-tilstand', b.tilstand);
+      await expect(page.locator('[data-demo-navn]')).toHaveText(b.navn);
+      await knapp.click();
+    }
   });
 
   test('lysboks: åpne, bla med piltaster, Esc og fokus tilbake', async ({ page }) => {
-    await page.goto('epoker/hestesporveien/');
-    const apne = page.locator('[data-lysboks-apne="1"]');
+    await page.goto(`epoker/${FORSTE}/`);
+    const antall = await page.locator('[data-lysboks-apne]').count();
+    expect(antall).toBeGreaterThan(0);
+    const start = Math.min(1, antall - 1);
+    const apne = page.locator(`[data-lysboks-apne="${start}"]`);
     await apne.click();
     const dialog = page.locator('[data-lysboks]');
     await expect(dialog).toBeVisible();
-    await expect(page.locator('[data-lysboks-teller]')).toHaveText('2 / 3');
+    const teller = page.locator('[data-lysboks-teller]');
+    await expect(teller).toHaveText(`${start + 1} / ${antall}`);
     await page.keyboard.press('ArrowRight');
-    await expect(page.locator('[data-lysboks-teller]')).toHaveText('3 / 3');
+    await expect(teller).toHaveText(`${((start + 1) % antall) + 1} / ${antall}`);
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
     await expect(apne).toBeFocused();
   });
 
   test('før/etter-glider med piltaster', async ({ page }) => {
-    await page.goto('epoker/hestesporveien/');
+    test.skip(!MED_FOR_ETTER, 'ingen epoke har før/etter-glider');
+    await page.goto(`epoker/${MED_FOR_ETTER}/`);
     const glider = page.locator('[data-for-etter-glider]');
     await glider.focus();
     for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowLeft');
@@ -248,12 +268,12 @@ test.describe('ferdigstilling', () => {
     expect(manifest.icons.some((i: { purpose?: string }) => i.purpose === 'maskable')).toBe(true);
 
     const sitemap = await (await request.get(`${baseURL}sitemap.xml`)).text();
-    expect(sitemap).toContain('/epoker/hestesporveien/');
+    expect(sitemap).toContain(`/epoker/${FORSTE}/`);
 
-    await page.goto('epoker/hestesporveien/');
+    await page.goto(`epoker/${FORSTE}/`);
     const og = await page.locator('meta[property="og:image"]').getAttribute('content');
-    expect(og).toMatch(/og\/hestesporveien\.png$/);
-    const bilde = await request.get(`${baseURL}og/hestesporveien.png`);
+    expect(og).toMatch(new RegExp(`og/${FORSTE}\\.png$`));
+    const bilde = await request.get(`${baseURL}og/${FORSTE}.png`);
     expect(bilde.status()).toBe(200);
   });
 
