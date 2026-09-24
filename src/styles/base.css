@@ -1,0 +1,133 @@
+/* Grunnstiler: reset, flater, fokus, grid og redusert bevegelse. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: var(--nav-hoyde);
+}
+
+body {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+  background: var(--c-perrong);
+  color: var(--c-grafitt);
+  font-family: var(--f-sans);
+  font-size: var(--fs-brod);
+  line-height: var(--lh-brod);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+main {
+  flex: 1;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+  border-radius: var(--r-bilde);
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: var(--linje-tynn);
+  text-underline-offset: 0.2em;
+}
+
+/* Synlig fokusmarkering: 2 px trikkeblå, 2 px avstand */
+:focus-visible {
+  outline: var(--fokus-bredde) solid var(--c-trikkebla);
+  outline-offset: var(--fokus-avstand);
+}
+
+/* Hopp til innhold */
+.hopp-lenke {
+  position: fixed;
+  top: var(--s-2);
+  left: var(--s-2);
+  z-index: 100;
+  padding: var(--s-2) var(--s-4);
+  background: var(--c-flate);
+  color: var(--c-grafitt);
+  border: var(--linje-tynn) solid var(--c-grafitt);
+  transform: translateY(-200%);
+}
+
+.hopp-lenke:focus-visible {
+  transform: none;
+}
+
+.visuelt-skjult {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Grid: 4 kolonner mobil, 12 desktop, maks 1280 px */
+.ramme {
+  width: 100%;
+  max-width: var(--maks-bredde);
+  margin-inline: auto;
+  padding-inline: var(--marg);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--kolonner), minmax(0, 1fr));
+  column-gap: var(--spalte);
+}
+
+/* Redusert bevegelse: alt ferdig, ingen overganger */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
