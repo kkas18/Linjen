@@ -123,19 +123,16 @@ Den engelske filen har de samme feltene. Oversett:
 2. Gi den riktig `rekkefolge`, og øk tallet for epokene som kommer etter, på begge språk.
 3. Delingsbilde, sitemap og språkvelger lages automatisk.
 
-## 8. Tester som avhenger av epokedata
+## 8. Testene og innholdet
 
-Noen automatiske tester sjekker konkrete verdier. Endrer du disse, må `tests/nettsted.spec.ts` oppdateres, ellers blir `Kvalitet` rød:
+De automatiske testene er uavhengige av innholdet. De leser epokene fra innholdsfilene (`tests/innhold.ts`) og bruker dataene på selve siden. Du kan derfor endre titler, slugs, galleri og før/etter uten å røre testene:
 
-| Endring                                                       | Test som påvirkes                             |
-| ------------------------------------------------------------- | --------------------------------------------- |
-| Tittel på `forstadsbanene` (nb eller en)                      | nettverkskartet viser epoken for år 1900      |
-| Tittel på `ringen` (nb: «Ringen», en: «The Ring»)             | språkvelgeren går til samme side              |
-| `slug` for `hestesporveien`, `t-banen`, `framtiden`, `ringen` | sidelistene og språkvelger-testen             |
-| Galleriet på `hestesporveien` (tre plassholdere i dag)        | lysboks-testen (forventer «2 / 3» og «3 / 3») |
-| `forEtter` fjernes fra `hestesporveien`                       | før/etter-testen                              |
+- **Sidetestene** bruker første epoke, første tunnelepoke og siste epoke, uansett hva de heter.
+- **Nettverkskartet og språkvelgeren** sjekker mot titlene som faktisk står i dataene.
+- **Lysboks-testen** teller bildene i galleriet.
+- **Før/etter-testen** bruker den første epoken som har glider. Har ingen epoke det, hoppes testen over.
 
-Si fra hvis du vil ha testene gjort uavhengige av innholdet før du fyller inn.
+Testene feiler bare når noe faktisk er ødelagt, for eksempel at en side ikke laster, at en epoke mangler engelsk motpart, eller at lysboksen ikke åpner.
 
 ## 9. Sjekk før du committer
 
