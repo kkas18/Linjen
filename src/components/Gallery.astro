@@ -1,48 +1,87 @@
 ---
-// Bildegalleri (6.3) som rutenett. Lysboks kommer i fase 3.
-import { Picture } from 'astro:assets';
-import type { Epoke } from '../lib/epoker';
+// Bildegalleri (6.3) som rutenett. Klikk åpner lysboksen.
+import { Picture, getImage } from 'astro:assets';
+import type { Stasjon } from '../lib/epoker';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import Lightbox, { type LysboksBilde } from './Lightbox.astro';
 
 interface Props {
-  bilder: Epoke['data']['galleri'];
+  bilder: Stasjon['data']['galleri'];
+  id?: string;
 }
 
-const { bilder } = Astro.props;
+const { bilder, id = 'lysboks' } = Astro.props;
+const plassholdere = bilder.length === 0;
+
+const kreditering = (b: (typeof bilder)[number]) =>
+  [b.fotograf, b.arkiv, b.lisens].filter(Boolean).join(' · ');
+
+// Stor versjon til lysboksen. Mangler bilder, vises plassholdere også i lysboksen.
+const lysboks: LysboksBilde[] = plassholdere
+  ? [1, 2, 3].map((n) => ({
+      src: null,
+      alt: `Bilde kommer (${n} av 3)`,
+      bildetekst: '[[TODO: galleribilde med kreditering]]',
+      kreditering: '',
+    }))
+  : await Promise.all(
+      bilder.map(async (b) => ({
+        src: (await getImage({ src: b.fil, width: 1600, format: 'webp' })).src,
+        alt: b.alt,
+        bildetekst: b.bildetekst ?? '',
+        kreditering: kreditering(b),
+      })),
+    );
 ---
 
 <ul class="galleri">
-  {bilder.length > 0
-    ? bilder.map((b) => (
+  {plassholdere
+    ? lysboks.map((b, i) => (
         <li>
           <figure class="galleri__figur">
-            <Picture
-              src={b.fil}
-              alt={b.alt}
-              formats={['avif', 'webp']}
-              widths={[400, 800, 1200]}
-              sizes="(min-width: 48rem) 33vw, 100vw"
-              loading="lazy"
-              class="galleri__bilde"
-            />
-            <figcaption class="t-bildetekst">
-              {b.bildetekst}
-              <span class="galleri__kreditering">
-                {[b.fotograf, b.arkiv, b.lisens].filter(Boolean).join(' · ')}
-              </span>
-            </figcaption>
+            <button
+              class="galleri__knapp"
+              type="button"
+              aria-label={`Vis større: ${b.alt}`}
+              data-lysboks-apne={i}
+              data-lysboks-mal={id}
+            >
+              <PhotoPlaceholder forhold="4 / 3" />
+            </button>
+            <figcaption class="t-bildetekst">{b.bildetekst}</figcaption>
           </figure>
         </li>
       ))
-    : [1, 2, 3].map(() => (
+    : bilder.map((b, i) => (
         <li>
           <figure class="galleri__figur">
-            <PhotoPlaceholder forhold="4 / 3" />
-            <figcaption class="t-bildetekst">[[TODO: galleribilde med kreditering]]</figcaption>
+            <button
+              class="galleri__knapp"
+              type="button"
+              aria-label={`Vis større: ${b.alt}`}
+              data-lysboks-apne={i}
+              data-lysboks-mal={id}
+            >
+              <Picture
+                src={b.fil}
+                alt=""
+                formats={['avif', 'webp']}
+                widths={[400, 800, 1200]}
+                sizes="(min-width: 48rem) 33vw, 100vw"
+                loading="lazy"
+                class="galleri__bilde"
+              />
+            </button>
+            <figcaption class="t-bildetekst">
+              {b.bildetekst}
+              <span class="galleri__kreditering">{kreditering(b)}</span>
+            </figcaption>
           </figure>
         </li>
       ))}
 </ul>
+
+<Lightbox id={id} bilder={lysboks} />
 
 <style>
   .galleri {
@@ -56,6 +95,20 @@ const { bilder } = Astro.props;
   .galleri__figur {
     display: grid;
     gap: var(--s-3);
+  }
+
+  .galleri__knapp {
+    display: block;
+    width: 100%;
+    cursor: zoom-in;
+    transition:
+      transform var(--t-rask) var(--ease-out),
+      box-shadow var(--t-rask) var(--ease-out);
+  }
+
+  .galleri__knapp:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
   }
 
   .galleri__bilde {

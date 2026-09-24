@@ -1,0 +1,159 @@
+---
+// Pedagogisk signal (6.2): klikk gjennom Stopp → Kjør med redusert hastighet → Kjør.
+// Forenklet: generelle signalbilder, ikke Sporveiens eksakte signalbilder.
+const bilder = [
+  {
+    tilstand: 'rod',
+    navn: 'Stopp',
+    forklaring: 'Toget skal stoppe foran signalet.',
+  },
+  {
+    tilstand: 'gul',
+    navn: 'Kjør med redusert hastighet',
+    forklaring: 'Toget kan kjøre forbi signalet, men med redusert hastighet.',
+  },
+  {
+    tilstand: 'gronn',
+    navn: 'Kjør',
+    forklaring: 'Toget kan kjøre forbi signalet med tillatt hastighet.',
+  },
+];
+---
+
+<section class="demo" aria-labelledby="demo-tittel" data-signal-demo>
+  <div class="demo__hode">
+    <p class="t-etikett demo__merke">Forenklet – generelle signalbilder</p>
+    <h2 id="demo-tittel">Prøv et signal</h2>
+  </div>
+
+  <div class="demo__innhold">
+    <div class="demo__signal" data-tilstand="rod" data-demo-signal aria-hidden="true">
+      <span class="demo__lampe demo__lampe--rod"></span>
+      <span class="demo__lampe demo__lampe--gul"></span>
+      <span class="demo__lampe demo__lampe--gronn"></span>
+    </div>
+
+    <div class="demo__tekst">
+      <p class="t-mono demo__teller" data-demo-teller>
+        1 / {bilder.length}
+      </p>
+      <p class="demo__navn" aria-live="polite">
+        <span data-demo-navn>{bilder[0].navn}</span>
+      </p>
+      <p class="demo__forklaring" data-demo-forklaring>
+        {bilder[0].forklaring}
+      </p>
+      <button class="demo__knapp t-etikett" type="button" data-demo-knapp>
+        Neste signalbilde <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+
+  <script type="application/json" data-demo-bilder set:html={JSON.stringify(bilder)} />
+</section>
+
+<style>
+  .demo {
+    display: grid;
+    gap: var(--s-6);
+    padding: var(--s-6);
+    background: var(--c-flate);
+    border: var(--linje-tynn) solid var(--c-grafitt);
+  }
+
+  .demo__hode {
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .demo__merke {
+    color: var(--c-grafitt-2);
+  }
+
+  .demo__innhold {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-7);
+  }
+
+  .demo__signal {
+    display: grid;
+    gap: var(--s-3);
+    padding: var(--s-4) var(--s-3);
+    background: var(--c-tunnel);
+  }
+
+  .demo__lampe {
+    width: var(--s-7);
+    height: var(--s-7);
+    border-radius: 50%;
+    background: var(--c-sig-av);
+    transition: background-color var(--t-rask) linear;
+  }
+
+  /* Forrige lampe slukker først, så 80 ms mørkt, så tennes neste – som et ekte signal */
+  .demo__signal[data-tilstand='rod'] .demo__lampe--rod {
+    background: var(--c-sig-rod);
+    transition-delay: calc(var(--t-rask) + var(--t-signal-pause));
+  }
+
+  .demo__signal[data-tilstand='gul'] .demo__lampe--gul {
+    background: var(--c-sig-gul);
+    transition-delay: calc(var(--t-rask) + var(--t-signal-pause));
+  }
+
+  .demo__signal[data-tilstand='gronn'] .demo__lampe--gronn {
+    background: var(--c-sig-gronn);
+    transition-delay: calc(var(--t-rask) + var(--t-signal-pause));
+  }
+
+  .demo__tekst {
+    display: grid;
+    gap: var(--s-3);
+    flex: 1 1 16rem;
+  }
+
+  .demo__teller {
+    font-size: var(--fs-etikett);
+    color: var(--c-grafitt-2);
+  }
+
+  .demo__navn {
+    font-family: var(--f-serif);
+    font-size: var(--fs-h2);
+    font-weight: 500;
+    line-height: var(--lh-overskrift);
+  }
+
+  .demo__knapp {
+    justify-self: start;
+    min-height: 2.75rem;
+    padding: 0 var(--s-5);
+    margin-top: var(--s-3);
+    background: var(--c-grafitt);
+    color: var(--c-lys-tekst);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-signal-demo]').forEach((demo) => {
+    const bilder: { tilstand: string; navn: string; forklaring: string }[] = JSON.parse(
+      demo.querySelector('[data-demo-bilder]')?.textContent ?? '[]',
+    );
+    const signal = demo.querySelector<HTMLElement>('[data-demo-signal]');
+    const navn = demo.querySelector<HTMLElement>('[data-demo-navn]');
+    const forklaring = demo.querySelector<HTMLElement>('[data-demo-forklaring]');
+    const teller = demo.querySelector<HTMLElement>('[data-demo-teller]');
+    let i = 0;
+
+    demo.querySelector('[data-demo-knapp]')?.addEventListener('click', () => {
+      i = (i + 1) % bilder.length;
+      const b = bilder[i];
+      if (signal) signal.dataset.tilstand = b.tilstand;
+      if (navn) navn.textContent = b.navn;
+      if (forklaring) forklaring.textContent = b.forklaring;
+      if (teller) teller.textContent = `${i + 1} / ${bilder.length}`;
+    });
+  });
+</script>

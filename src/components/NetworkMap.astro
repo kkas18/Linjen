@@ -1,0 +1,311 @@
+---
+// Nettverkskart over tid (6.1): skjematisk SVG, årstallsglidebryter og avspilling.
+import { segmenter, TYPER, TYPENAVN } from '../lib/nettverk';
+import { arTekst, hentEpoker } from '../lib/epoker';
+import { url } from '../lib/url';
+
+const START = 1875;
+const SLUTT = new Date().getFullYear();
+
+// Tykkeste linjer tegnes sist, så T-banen ligger øverst.
+const rekkefolge = ['hest', 'trikk', 'forstadsbane', 'tbane'];
+const sortert = [...segmenter].sort(
+  (a, b) => rekkefolge.indexOf(a.type) - rekkefolge.indexOf(b.type),
+);
+
+const epoker = (await hentEpoker())
+  .filter((e) => e.data.ar !== null)
+  .map((e) => ({
+    ar: e.data.ar,
+    arTekst: arTekst(e.data),
+    tittel: e.data.tittel,
+    ingress: e.data.ingress,
+    href: url(`/epoker/${e.data.slug}/`),
+  }));
+
+const iDrift = (ar: number) =>
+  segmenter.filter((s) => s.apnet <= ar && (s.nedlagt === null || ar < s.nedlagt)).length;
+const gjeldende = [...epoker].reverse().find((e) => e.ar !== null && e.ar <= SLUTT);
+---
+
+<div class="nettverk" data-nettverk data-start={START} data-slutt={SLUTT}>
+  <div class="nettverk__kart">
+    <p class="t-etikett nettverk__merke">Forenklet skjematisk kart</p>
+    <svg
+      class="nettverk__svg"
+      viewBox="0 0 760 480"
+      role="img"
+      aria-labelledby="nettverk-svg-tittel"
+    >
+      <title id="nettverk-svg-tittel">Skjematisk kart over Sporveiens nett for valgt år</title>
+      {sortert.map((s) => (
+        <path
+          class={`seg seg--${s.type}`}
+          d={s.path}
+          pathLength="1"
+          data-apnet={s.apnet}
+          data-nedlagt={s.nedlagt ?? undefined}
+          data-tilstand={
+            s.apnet > SLUTT
+              ? 'skjult'
+              : s.nedlagt !== null && SLUTT >= s.nedlagt
+                ? 'nedlagt'
+                : 'aktiv'
+          }
+        >
+          <title>{`${s.navn} (${s.apnet}${s.nedlagt ? `–${s.nedlagt}` : ''})`}</title>
+        </path>
+      ))}
+    </svg>
+
+    <ul class="nettverk__forklaring" aria-label="Linjetyper">
+      {TYPER.map((t) => (
+        <li>
+          <svg class="nettverk__prove" viewBox="0 0 32 8" aria-hidden="true">
+            <line class={`seg seg--${t}`} x1="0" y1="4" x2="32" y2="4" data-tilstand="aktiv" />
+          </svg>
+          {TYPENAVN[t]}
+        </li>
+      ))}
+      <li>
+        <svg class="nettverk__prove" viewBox="0 0 32 8" aria-hidden="true">
+          <line class="seg seg--trikk" x1="0" y1="4" x2="32" y2="4" data-tilstand="nedlagt" />
+        </svg>
+        Nedlagt
+      </li>
+    </ul>
+  </div>
+
+  <div class="nettverk__panel">
+    <div class="nettverk__styring">
+      <label class="t-etikett" for="nettverk-ar">
+        År
+      </label>
+      <output class="t-display nettverk__ar" for="nettverk-ar" data-nettverk-ar>
+        {SLUTT}
+      </output>
+      <input
+        class="nettverk__glider"
+        id="nettverk-ar"
+        type="range"
+        min={START}
+        max={SLUTT}
+        step="1"
+        value={SLUTT}
+        data-nettverk-glider
+      />
+      <div class="nettverk__knapper">
+        <button class="nettverk__spill t-etikett" type="button" data-nettverk-spill>
+          Spill av
+        </button>
+        <span class="t-bildetekst nettverk__hint">Piltastene flytter ett år</span>
+      </div>
+      <p class="visuelt-skjult" aria-live="polite" data-nettverk-status>
+        {SLUTT}: {iDrift(SLUTT)} strekninger i drift
+      </p>
+    </div>
+
+    <section class="nettverk__hendelse" aria-labelledby="nettverk-hendelse-tittel">
+      <p class="t-etikett nettverk__hendelse-etikett" data-nettverk-epoke-ar>
+        {gjeldende?.arTekst}
+      </p>
+      <h2
+        class="nettverk__hendelse-tittel"
+        id="nettverk-hendelse-tittel"
+        data-nettverk-epoke-tittel
+      >
+        {gjeldende?.tittel}
+      </h2>
+      <p class="nettverk__hendelse-tekst" data-nettverk-epoke-ingress>
+        {gjeldende?.ingress}
+      </p>
+      <a class="nettverk__hendelse-lenke" href={gjeldende?.href} data-nettverk-epoke-lenke>
+        Les mer om epoken <span aria-hidden="true">→</span>
+      </a>
+    </section>
+  </div>
+
+  <script type="application/json" data-nettverk-epoker set:html={JSON.stringify(epoker)} />
+</div>
+
+<style>
+  .nettverk {
+    display: grid;
+    gap: var(--s-7);
+  }
+
+  .nettverk__kart {
+    display: grid;
+    gap: var(--s-4);
+    align-content: start;
+  }
+
+  .nettverk__merke {
+    color: var(--c-grafitt-2);
+  }
+
+  .nettverk__svg {
+    width: 100%;
+    height: auto;
+    background: var(--c-flate);
+    border: var(--linje-tynn) solid var(--c-skinne);
+    overflow: visible;
+  }
+
+  /* Linjetyper skilles med tykkelse, ikke nye farger. T-banen er eneste aksent. */
+  :global(.seg) {
+    fill: none;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition:
+      stroke-dashoffset var(--t-sakte) var(--ease-inout),
+      opacity var(--t-normal) var(--ease-out);
+  }
+
+  :global(.seg[data-tilstand='aktiv']) {
+    stroke-dashoffset: 0;
+  }
+
+  :global(.seg[data-tilstand='nedlagt']) {
+    stroke-dashoffset: 0;
+    stroke-dasharray: 0.02 0.015;
+    opacity: 0.15;
+  }
+
+  :global(.seg--tbane) {
+    stroke: var(--c-trikkebla);
+    stroke-width: 6;
+  }
+
+  :global(.seg--forstadsbane) {
+    stroke: var(--c-grafitt-2);
+    stroke-width: 4;
+  }
+
+  :global(.seg--trikk) {
+    stroke: var(--c-grafitt);
+    stroke-width: 3;
+  }
+
+  :global(.seg--hest) {
+    stroke: var(--c-grafitt);
+    stroke-width: 1.5;
+  }
+
+  .nettverk__forklaring {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3) var(--s-5);
+    list-style: none;
+    padding: 0;
+    font-size: var(--fs-bildetekst);
+    color: var(--c-grafitt-2);
+  }
+
+  .nettverk__forklaring li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+  }
+
+  .nettverk__prove {
+    width: var(--s-6);
+    height: var(--s-2);
+    overflow: visible;
+  }
+
+  /* Prøvestreken i forklaringen er stiplet på en kort strekning; juster mønsteret */
+  .nettverk__prove :global(.seg[data-tilstand='nedlagt']) {
+    stroke-dasharray: 0.2 0.15;
+    opacity: 0.35;
+  }
+
+  /* Mobil: årstall og kontroller over kartet, hendelsen under. Panelet er bare en
+     gruppering på desktop. */
+  .nettverk__panel {
+    display: contents;
+  }
+
+  .nettverk__styring {
+    order: -1;
+  }
+
+  .nettverk__styring {
+    display: grid;
+    gap: var(--s-3);
+    align-content: start;
+  }
+
+  .nettverk__ar {
+    font-size: clamp(3.5rem, 2rem + 5vw, 6rem);
+  }
+
+  .nettverk__glider {
+    width: 100%;
+    accent-color: var(--c-trikkebla);
+    min-height: 2.75rem;
+  }
+
+  .nettverk__knapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-4);
+  }
+
+  .nettverk__spill {
+    min-height: 2.75rem;
+    padding: 0 var(--s-5);
+    background: var(--c-grafitt);
+    color: var(--c-lys-tekst);
+  }
+
+  .nettverk__spill[aria-pressed='true'] {
+    background: var(--c-trikkebla);
+  }
+
+  .nettverk__hendelse {
+    display: grid;
+    gap: var(--s-3);
+    padding-top: var(--s-5);
+    border-top: var(--linje-tynn) solid var(--c-skinne);
+  }
+
+  .nettverk__hendelse-etikett {
+    color: var(--c-grafitt-2);
+  }
+
+  .nettverk__hendelse-tittel {
+    font-size: var(--fs-ingress);
+  }
+
+  .nettverk__hendelse-lenke {
+    color: var(--c-trikkebla);
+    font-weight: 600;
+  }
+
+  @media (min-width: 48rem) {
+    .nettverk {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      grid-template-rows: auto 1fr;
+      gap: var(--s-7) var(--s-8);
+    }
+
+    .nettverk__kart {
+      grid-row: 1 / 3;
+    }
+
+    .nettverk__styring,
+    .nettverk__hendelse {
+      grid-column: 2;
+    }
+  }
+</style>
+
+<script>
+  import { initNettverk } from '../scripts/nettverk';
+
+  document.querySelectorAll<HTMLElement>('[data-nettverk]').forEach(initNettverk);
+</script>

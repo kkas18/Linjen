@@ -14,32 +14,45 @@ const bilde = ({ image }: SchemaContext) =>
     kilde: z.url('Bildet mangler gyldig kilde-URL'),
   });
 
+// Felles skjema for stasjoner: epokene på forsiden og fortellingen på /signal/.
+const stasjon = (ctx: SchemaContext) =>
+  z.object({
+    slug: z.string(),
+    rekkefolge: z.number().int().positive(),
+    // `ar` brukes til sortering og opptelling. null = «i dag» (ingen opptelling).
+    ar: z.number().int().nullable(),
+    arSlutt: z.number().int().nullable().optional(),
+    // Visningsform når året ikke er ett enkelt tall, f.eks. «1945–1960-tallet» eller «I dag →».
+    arVisning: z.string().optional(),
+    tittel: z.string(),
+    etikett: z.string(),
+    ingress: z.string(),
+    tema: z.enum(['lys', 'tunnel']),
+    hovedbilde: bilde(ctx).optional(),
+    faktaruter: z
+      .array(z.object({ etikett: z.string(), verdi: z.string() }))
+      .max(4)
+      .default([]),
+    galleri: z.array(bilde(ctx)).default([]),
+    // Før/etter-glider. Bildene kan mangle; da vises plassholdere.
+    forEtter: z
+      .object({
+        sted: z.string().optional(),
+        for: bilde(ctx).optional(),
+        etter: bilde(ctx).optional(),
+      })
+      .nullable()
+      .default(null),
+  });
+
 const epoker = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/epoker' }),
-  schema: (ctx) =>
-    z.object({
-      slug: z.string(),
-      rekkefolge: z.number().int().positive(),
-      // `ar` brukes til sortering og opptelling. null = «i dag» (ingen opptelling).
-      ar: z.number().int().nullable(),
-      arSlutt: z.number().int().nullable().optional(),
-      // Visningsform når året ikke er ett enkelt tall, f.eks. «1945–1960-tallet» eller «I dag →».
-      arVisning: z.string().optional(),
-      tittel: z.string(),
-      etikett: z.string(),
-      ingress: z.string(),
-      tema: z.enum(['lys', 'tunnel']),
-      hovedbilde: bilde(ctx).optional(),
-      faktaruter: z
-        .array(z.object({ etikett: z.string(), verdi: z.string() }))
-        .max(4)
-        .default([]),
-      galleri: z.array(bilde(ctx)).default([]),
-      forEtter: z
-        .object({ for: bilde(ctx), etter: bilde(ctx) })
-        .nullable()
-        .default(null),
-    }),
+  schema: stasjon,
+});
+
+const signal = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/signal' }),
+  schema: stasjon,
 });
 
 const materiell = defineCollection({
@@ -54,4 +67,4 @@ const materiell = defineCollection({
     }),
 });
 
-export const collections = { epoker, materiell };
+export const collections = { epoker, materiell, signal };

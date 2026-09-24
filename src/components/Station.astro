@@ -5,16 +5,19 @@ import Signal from './Signal.astro';
 import FactBox from './FactBox.astro';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
 import { url } from '../lib/url';
-import { arHale, arTekst, utdrag, type Epoke } from '../lib/epoker';
+import { arHale, arTekst, utdrag, type Stasjon } from '../lib/epoker';
 
 interface Props {
-  epoke: Epoke;
+  epoke: Stasjon;
   fraAr: number | null; // året årstallet teller opp fra
   tunnellys?: boolean; // første T-banebilde får «tunnellys»-stripen (5.4)
+  lenke?: string | null; // «Les mer»-lenke; null skjuler den (f.eks. på /signal/)
 }
 
 const { epoke, fraAr, tunnellys = false } = Astro.props;
 const { data } = epoke;
+const lenke = Astro.props.lenke === undefined ? url(`/epoker/${data.slug}/`) : Astro.props.lenke;
+const visAr = arTekst(data);
 const tekst = utdrag(epoke.rendered?.html ?? '');
 const hale = arHale(data);
 const tekstVenstre = data.rekkefolge % 2 === 1;
@@ -29,21 +32,23 @@ const tittelId = `stasjon-${data.slug}`;
   data-tema={data.tema}
   data-navn={data.tittel}
   data-ar={data.ar ?? undefined}
-  data-ar-tekst={arTekst(data)}
+  data-ar-tekst={visAr}
   data-fra={fraAr ?? undefined}
 >
   <div class="stasjon__skilt-rad" data-stasjon-skilt-rad>
     <Signal class="stasjon__signal" />
     <p class="stasjon__skilt" data-stasjon-skilt>
       <span class="t-etikett">{data.tittel}</span>
-      <span class="t-mono stasjon__skilt-ar">{arTekst(data)}</span>
+      {visAr && <span class="t-mono stasjon__skilt-ar">{visAr}</span>}
     </p>
   </div>
 
-  <p class="t-display stasjon__ar" aria-hidden="true">
-    <span data-stasjon-ar>{data.ar ?? data.arVisning}</span>
-    {hale && <span class="stasjon__ar-hale">{hale}</span>}
-  </p>
+  {visAr && (
+    <p class="t-display stasjon__ar" aria-hidden="true">
+      <span data-stasjon-ar>{data.ar ?? data.arVisning}</span>
+      {hale && <span class="stasjon__ar-hale">{hale}</span>}
+    </p>
+  )}
 
   <div class="stasjon__tekst">
     <h2 id={tittelId}>{data.tittel}</h2>
@@ -89,11 +94,13 @@ const tittelId = `stasjon-${data.slug}`;
     <FactBox fakta={data.faktaruter} />
   </div>
 
-  <p class="stasjon__lenke">
-    <a href={url(`/epoker/${data.slug}/`)}>
-      Les mer om epoken <span aria-hidden="true">→</span>
-    </a>
-  </p>
+  {lenke && (
+    <p class="stasjon__lenke">
+      <a href={lenke}>
+        Les mer om epoken <span aria-hidden="true">→</span>
+      </a>
+    </p>
+  )}
 </section>
 
 <style>

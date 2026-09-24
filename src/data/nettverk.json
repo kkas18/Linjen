@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "id": "hest-sentrum",
+    "type": "hest",
+    "apnet": 1875,
+    "nedlagt": null,
+    "navn": "Hestesporvei – linje A (skjematisk)",
+    "path": "M 240 320 H 520"
+  },
+  {
+    "id": "hest-nord",
+    "type": "hest",
+    "apnet": 1875,
+    "nedlagt": null,
+    "navn": "Hestesporvei – linje B (skjematisk)",
+    "path": "M 400 320 V 200"
+  },
+  {
+    "id": "trikk-ost",
+    "type": "trikk",
+    "apnet": 1894,
+    "nedlagt": null,
+    "navn": "Elektrisk sporvei (skjematisk)",
+    "path": "M 400 360 H 480 L 560 440 H 640"
+  },
+  {
+    "id": "holmenkolbanen",
+    "type": "forstadsbane",
+    "apnet": 1898,
+    "nedlagt": null,
+    "navn": "Holmenkolbanen",
+    "path": "M 240 240 H 160 L 100 180 V 80"
+  },
+  {
+    "id": "forstad-vest",
+    "type": "forstadsbane",
+    "apnet": 1898,
+    "nedlagt": null,
+    "navn": "Forstadsbane vestover",
+    "path": "M 240 240 L 180 300 H 60"
+  },
+  {
+    "id": "tunnel-majorstuen",
+    "type": "forstadsbane",
+    "apnet": 1928,
+    "nedlagt": null,
+    "navn": "Tunnel Majorstuen–Nationaltheatret",
+    "path": "M 240 240 L 320 320"
+  },
+  {
+    "id": "tbane-ost",
+    "type": "tbane",
+    "apnet": 1966,
+    "nedlagt": null,
+    "navn": "Første T-banestrekning østover",
+    "path": "M 480 320 H 620 L 700 240 V 120"
+  },
+  {
+    "id": "fellestunnelen",
+    "type": "tbane",
+    "apnet": 1987,
+    "nedlagt": null,
+    "navn": "Fellestunnelen (1987–1993)",
+    "path": "M 320 320 H 480"
+  },
+  {
+    "id": "ringen",
+    "type": "tbane",
+    "apnet": 2006,
+    "nedlagt": null,
+    "navn": "Ringbanen",
+    "path": "M 240 240 V 160 L 300 100 H 480 L 540 160 V 280 L 500 320"
+  }
+]

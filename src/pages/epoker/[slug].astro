@@ -6,6 +6,7 @@ import Base from '../../layouts/Base.astro';
 import Hero from '../../components/Hero.astro';
 import FactBox from '../../components/FactBox.astro';
 import Gallery from '../../components/Gallery.astro';
+import BeforeAfter from '../../components/BeforeAfter.astro';
 import { arTekst, hentEpoker, type Epoke } from '../../lib/epoker';
 import { url } from '../../lib/url';
 
@@ -46,6 +47,13 @@ const { Content } = await render(epoke);
       <aside class="epoke__fakta" aria-label="Nøkkeltall">
         <FactBox fakta={data.faktaruter} />
       </aside>
+    )}
+
+    {data.forEtter && (
+      <section class="epoke__galleri" aria-labelledby="for-etter-tittel">
+        <h2 id="for-etter-tittel">Da og nå</h2>
+        <BeforeAfter forEtter={data.forEtter} />
+      </section>
     )}
 
     <section class="epoke__galleri" aria-labelledby="galleri-tittel">

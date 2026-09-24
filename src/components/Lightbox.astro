@@ -1,0 +1,163 @@
+---
+// Lysboks (6.3): native <dialog> med tastatur (←/→/Esc) og sveip. Bildene kommer fra galleriet.
+export interface LysboksBilde {
+  src: string | null; // null = plassholder («Bilde kommer»)
+  alt: string;
+  bildetekst: string;
+  kreditering: string;
+}
+
+interface Props {
+  id: string;
+  bilder: LysboksBilde[];
+}
+
+const { id, bilder } = Astro.props;
+---
+
+<dialog class="lysboks" id={id} aria-label="Bildevisning" data-lysboks>
+  <div class="lysboks__ramme">
+    <button class="lysboks__lukk t-etikett" type="button" data-lysboks-lukk>
+      Lukk <span aria-hidden="true">×</span>
+    </button>
+
+    <figure class="lysboks__figur">
+      <div class="lysboks__bilde" data-lysboks-bilde></div>
+      <figcaption class="lysboks__tekst">
+        <span data-lysboks-bildetekst></span>
+        <span class="lysboks__kreditering" data-lysboks-kreditering></span>
+      </figcaption>
+    </figure>
+
+    <div class="lysboks__nav">
+      <button class="lysboks__pil" type="button" aria-label="Forrige bilde" data-lysboks-forrige>
+        <span aria-hidden="true">←</span>
+      </button>
+      <span class="t-mono lysboks__teller" aria-live="polite" data-lysboks-teller></span>
+      <button class="lysboks__pil" type="button" aria-label="Neste bilde" data-lysboks-neste>
+        <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+  <script type="application/json" data-lysboks-data set:html={JSON.stringify(bilder)} />
+</dialog>
+
+<style>
+  .lysboks {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--c-tunnel);
+    color: var(--c-lys-tekst);
+  }
+
+  .lysboks[open] {
+    animation: inn var(--t-normal) var(--ease-out);
+  }
+
+  .lysboks::backdrop {
+    background: var(--c-tunnel);
+  }
+
+  @keyframes inn {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .lysboks__ramme {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: var(--s-4);
+    padding: var(--s-4) var(--marg) var(--s-5);
+    touch-action: pan-y;
+  }
+
+  .lysboks__lukk {
+    justify-self: end;
+    min-height: 2.75rem;
+    padding: 0 var(--s-3);
+    color: var(--c-lys-tekst);
+  }
+
+  .lysboks__figur {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: var(--s-3);
+  }
+
+  .lysboks__bilde {
+    min-height: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .lysboks__bilde :global(img) {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: grayscale(1);
+  }
+
+  .lysboks__bilde :global(.lysboks__plassholder) {
+    width: min(100%, 60rem);
+    aspect-ratio: 4 / 3;
+    max-height: 100%;
+    display: grid;
+    place-items: center;
+    background: var(--c-plassholder);
+    color: var(--c-grafitt);
+    border-radius: var(--r-bilde);
+  }
+
+  .lysboks__tekst {
+    font-size: var(--fs-bildetekst);
+    color: var(--c-lys-tekst-2);
+    text-align: center;
+  }
+
+  .lysboks__kreditering {
+    display: block;
+  }
+
+  .lysboks__nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--s-5);
+  }
+
+  .lysboks__pil {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.25rem;
+    color: var(--c-lys-tekst);
+    border: var(--linje-tynn) solid var(--c-skinne-mork);
+  }
+
+  .lysboks__pil:hover {
+    border-color: var(--c-lys-tekst-2);
+  }
+
+  .lysboks__teller {
+    min-width: 4rem;
+    text-align: center;
+    font-size: var(--fs-etikett);
+  }
+
+  .lysboks :focus-visible {
+    outline-color: var(--c-lys-tekst);
+  }
+</style>
+
+<script>
+  import { initLysboks } from '../scripts/lysboks';
+
+  document.querySelectorAll<HTMLDialogElement>('[data-lysboks]').forEach(initLysboks);
+</script>
