@@ -1,20 +1,22 @@
 ---
 // Stasjon (5.2): én seksjon per epoke på forsiden.
 import { Picture } from 'astro:assets';
-import { render, type CollectionEntry } from 'astro:content';
 import Signal from './Signal.astro';
 import FactBox from './FactBox.astro';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
 import { url } from '../lib/url';
+import { arHale, arTekst, utdrag, type Epoke } from '../lib/epoker';
 
 interface Props {
-  epoke: CollectionEntry<'epoker'>;
-  fraAr: number; // året årstallet teller opp fra
+  epoke: Epoke;
+  fraAr: number | null; // året årstallet teller opp fra
+  tunnellys?: boolean; // første T-banebilde får «tunnellys»-stripen (5.4)
 }
 
-const { epoke, fraAr } = Astro.props;
+const { epoke, fraAr, tunnellys = false } = Astro.props;
 const { data } = epoke;
-const { Content } = await render(epoke);
+const tekst = utdrag(epoke.rendered?.html ?? '');
+const hale = arHale(data);
 const tekstVenstre = data.rekkefolge % 2 === 1;
 const tittelId = `stasjon-${data.slug}`;
 ---
@@ -26,27 +28,27 @@ const tittelId = `stasjon-${data.slug}`;
   data-stasjon
   data-tema={data.tema}
   data-navn={data.tittel}
-  data-ar={data.ar}
-  data-fra={fraAr}
+  data-ar={data.ar ?? undefined}
+  data-ar-tekst={arTekst(data)}
+  data-fra={fraAr ?? undefined}
 >
   <div class="stasjon__skilt-rad" data-stasjon-skilt-rad>
     <Signal class="stasjon__signal" />
     <p class="stasjon__skilt" data-stasjon-skilt>
       <span class="t-etikett">{data.tittel}</span>
-      <span class="t-mono stasjon__skilt-ar">{data.ar}</span>
+      <span class="t-mono stasjon__skilt-ar">{arTekst(data)}</span>
     </p>
   </div>
 
-  <p class="t-display stasjon__ar" aria-hidden="true" data-stasjon-ar>
-    {data.ar}
+  <p class="t-display stasjon__ar" aria-hidden="true">
+    <span data-stasjon-ar>{data.ar ?? data.arVisning}</span>
+    {hale && <span class="stasjon__ar-hale">{hale}</span>}
   </p>
 
   <div class="stasjon__tekst">
     <h2 id={tittelId}>{data.tittel}</h2>
     <p class="t-ingress stasjon__ingress">{data.ingress}</p>
-    <div class="stasjon__brod">
-      <Content />
-    </div>
+    <div class="stasjon__brod" set:html={tekst} />
   </div>
 
   <figure class="stasjon__figur">
@@ -65,8 +67,9 @@ const tittelId = `stasjon-${data.slug}`;
           <PhotoPlaceholder forhold="4 / 3" />
         )}
       </div>
+      {tunnellys && <span class="stasjon__tunnellys" aria-hidden="true" data-tunnellys />}
     </div>
-    {data.hovedbilde && (
+    {data.hovedbilde ? (
       <figcaption class="t-bildetekst stasjon__bildetekst">
         {data.hovedbilde.bildetekst}
         <span class="stasjon__kreditering">
@@ -75,8 +78,7 @@ const tittelId = `stasjon-${data.slug}`;
             .join(' · ')}
         </span>
       </figcaption>
-    )}
-    {!data.hovedbilde && (
+    ) : (
       <figcaption class="t-bildetekst stasjon__bildetekst">
         [[TODO: hovedbilde med bildetekst og kreditering]]
       </figcaption>
@@ -107,6 +109,19 @@ const tittelId = `stasjon-${data.slug}`;
       'lenke';
     row-gap: var(--s-5);
     padding: var(--s-9) var(--marg);
+    color: var(--c-tekst);
+  }
+
+  /* Uten scroll-animasjon (redusert bevegelse / uten JS) er tunnelseksjonene mørke direkte.
+     Med animasjon arver seksjonen fargene som motion.ts scrubber på linjeflaten. */
+  :global(:root:not([data-motion='på'])) .stasjon[data-tema='tunnel'] {
+    --c-bakgrunn: var(--c-tunnel);
+    --c-tekst: var(--c-lys-tekst);
+    --c-tekst-2: var(--c-lys-tekst-2);
+    --c-spor: var(--c-skinne-mork);
+    --c-lenke: var(--c-lys-tekst);
+    /* Fullbredde-bakgrunn uten horisontal scroll */
+    border-image: conic-gradient(var(--c-bakgrunn) 0 0) fill 0 / /0 100vw;
   }
 
   .stasjon__skilt-rad {
@@ -116,6 +131,7 @@ const tittelId = `stasjon-${data.slug}`;
     gap: var(--s-3);
   }
 
+  /* Stasjonsskiltet er alltid hvitt med mørk tekst, også i tunnelen */
   .stasjon__skilt {
     display: inline-flex;
     align-items: baseline;
@@ -133,7 +149,12 @@ const tittelId = `stasjon-${data.slug}`;
 
   .stasjon__ar {
     grid-area: ar;
-    color: var(--c-grafitt);
+    color: var(--c-tekst);
+  }
+
+  .stasjon__ar-hale {
+    font-size: var(--fs-h2);
+    letter-spacing: 0;
   }
 
   .stasjon__tekst {
@@ -155,6 +176,7 @@ const tittelId = `stasjon-${data.slug}`;
   }
 
   .stasjon__bilde {
+    position: relative;
     overflow: hidden;
     border-radius: var(--r-bilde);
   }
@@ -166,6 +188,20 @@ const tittelId = `stasjon-${data.slug}`;
   .stasjon__bilde :global(img) {
     width: 100%;
     filter: grayscale(1);
+  }
+
+  /* Smal lys stripe som feier én gang over det første T-banebildet */
+  .stasjon__tunnellys {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 30%;
+    background: var(--tunnellys-gradient);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .stasjon__bildetekst {
+    color: var(--c-tekst-2);
   }
 
   .stasjon__kreditering {
@@ -181,7 +217,7 @@ const tittelId = `stasjon-${data.slug}`;
   }
 
   .stasjon__lenke a {
-    color: var(--c-trikkebla);
+    color: var(--c-lenke);
     font-weight: 600;
     text-decoration: none;
     border-bottom: var(--linje-tynn) solid currentColor;
@@ -214,6 +250,15 @@ const tittelId = `stasjon-${data.slug}`;
         'figur tekst'
         'figur fakta'
         'figur lenke';
+    }
+
+    /* Mørk skinne over SVG-linjen i tunnelseksjoner når fargene ikke scrubbes */
+    :global(:root:not([data-motion='på'])) .stasjon[data-tema='tunnel']::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 calc(var(--sporlinje-x) - var(--spor-bredde) / 2);
+      width: var(--spor-bredde);
+      background: var(--c-spor);
     }
 
     /* Signalet står ved sporlinjen, på høyde med stasjonsskiltet */

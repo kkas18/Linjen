@@ -26,6 +26,13 @@
   --c-sig-gronn: #1c9b5b;
   --c-sig-av: #2a2f36;
 
+  /* Semantiske flater – byttes i tunnelseksjoner (5.4). Peker kun til tokenene over. */
+  --c-bakgrunn: var(--c-perrong);
+  --c-tekst: var(--c-grafitt);
+  --c-tekst-2: var(--c-grafitt-2);
+  --c-spor: var(--c-skinne);
+  --c-lenke: var(--c-trikkebla);
+
   /* Plassholder for bilder */
   --c-plassholder: var(--c-skinne);
 
@@ -39,6 +46,7 @@
   --t-forskyvning: 80ms; /* mellom linjer i SplitText */
   --t-puls: 3s; /* «Scroll for å kjøre» */
   --scrub: 0.6;
+  --t-tunnellys: 700ms;
 
   /* Avstandsskala: 4, 8, 12, 16, 24, 32, 48, 72, 112, 160 px */
   --s-1: 0.25rem;
@@ -79,7 +87,15 @@
   --signalhus-b: 14px;
   --trikk-b: 12px;
   --trikk-h: 28px;
+  --tunnellys-gradient: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0) 0%,
+    rgb(255 255 255 / 0.35) 50%,
+    rgb(255 255 255 / 0) 100%
+  );
   --hero-gradient: linear-gradient(to bottom, rgb(0 0 0 / 0) 40%, rgb(0 0 0 / 0.55) 100%);
+
+  --kort-b: 18rem; /* materiellkort */
 
   /* Lag */
   --z-fremdrift: 30;

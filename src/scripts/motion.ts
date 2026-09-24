@@ -58,6 +58,7 @@ interface Bevegelse {
   normal: number;
   sakte: number;
   forskyvning: number;
+  tunnellys: number;
   scrub: number;
   ut: string;
   innUt: string;
@@ -69,6 +70,7 @@ function lesBevegelse(): Bevegelse {
     normal: tid('--t-normal'),
     sakte: tid('--t-sakte'),
     forskyvning: tid('--t-forskyvning'),
+    tunnellys: tid('--t-tunnellys'),
     scrub: parseFloat(token('--scrub')) || 0.6,
     ut: kurve('--ease-out'),
     innUt: kurve('--ease-inout'),
@@ -188,7 +190,10 @@ function stasjoner(b: Bevegelse, redusert: boolean): void {
   document.querySelectorAll<HTMLElement>('[data-stasjon]').forEach((stasjon) => {
     // Tilbakestill til ferdig tekst (viktig når matchMedia bytter modus underveis).
     const ar = stasjon.querySelector<HTMLElement>('[data-stasjon-ar]');
-    if (ar) ar.textContent = stasjon.dataset.ar ?? '';
+    if (ar) {
+      ar.dataset.original ??= ar.textContent?.trim() ?? '';
+      ar.textContent = ar.dataset.original;
+    }
     const faktaverdier = stasjon.querySelectorAll<HTMLElement>('[data-fakta-verdi]');
     faktaverdier.forEach((el) => {
       el.dataset.original ??= el.textContent?.trim() ?? '';
@@ -220,8 +225,9 @@ function stasjoner(b: Bevegelse, redusert: boolean): void {
       });
     }
 
-    const fra = Number(stasjon.dataset.fra);
-    const til = Number(stasjon.dataset.ar);
+    // Årstallet teller opp fra forrige epoke. Epoker uten tall («I dag») står urørt.
+    const fra = parseInt(stasjon.dataset.fra ?? '', 10);
+    const til = parseInt(stasjon.dataset.ar ?? '', 10);
     if (ar && Number.isFinite(fra) && Number.isFinite(til)) tellOpp(ar, fra, til, b);
 
     // Hovedbilde: perrongdør-wipe fra venstre, bildet skaleres 1.04 → 1 samtidig.
@@ -238,6 +244,17 @@ function stasjoner(b: Bevegelse, redusert: boolean): void {
         0,
       );
       if (indre) tl.fromTo(indre, { scale: 1.04 }, { scale: 1, duration: b.sakte, ease: b.ut }, 0);
+
+      // «Tunnellys»: en smal lys stripe feier én gang over det første T-banebildet (5.4).
+      const stripe = bilde.querySelector<HTMLElement>('[data-tunnellys]');
+      if (stripe) {
+        tl.fromTo(
+          stripe,
+          { xPercent: -100, autoAlpha: 1 },
+          { xPercent: 340, duration: b.tunnellys, ease: b.innUt },
+          b.sakte * 0.8,
+        ).set(stripe, { autoAlpha: 0 });
+      }
     }
 
     // Faktaruter: tall som starter med et siffer telles opp; tekst (f.eks. TODO) står urørt.
@@ -303,14 +320,16 @@ function fremdriftMobil(b: Bevegelse, redusert: boolean): Opprydding | undefined
   if (!gjeldende || !navn || !ar) return;
   const stasjonsliste = [...document.querySelectorAll<HTMLElement>('[data-stasjon]')];
 
+  let gjeldendeIndeks = -1;
   const vis = (i: number) => {
+    gjeldendeIndeks = i;
     const stasjon = stasjonsliste[i];
     if (!stasjon) {
       gjeldende.dataset.synlig = 'false';
       return;
     }
     navn.textContent = stasjon.dataset.navn ?? '';
-    ar.textContent = stasjon.dataset.ar ?? '';
+    ar.textContent = stasjon.dataset.arTekst ?? '';
     gjeldende.dataset.synlig = 'true';
   };
 
@@ -325,8 +344,91 @@ function fremdriftMobil(b: Bevegelse, redusert: boolean): Opprydding | undefined
     });
   });
 
+  // Skjul skiltet når linjen er passert (materiell og avslutning), vis det igjen på vei tilbake.
+  ScrollTrigger.create({
+    trigger: linje,
+    start: 'top top',
+    end: 'bottom top',
+    onLeave: () => {
+      gjeldende.dataset.synlig = 'false';
+    },
+    onEnterBack: () => vis(gjeldendeIndeks),
+  });
+
   return () => {
     gjeldende.dataset.synlig = 'false';
+  };
+}
+
+/* ---------- Tunnelovergang (5.4) ---------- */
+
+type Tema = 'lys' | 'tunnel';
+
+/** Fargene som scrubbes på linjeflaten, hentet fra tokens.css. */
+function temafarger(tema: Tema): Record<string, string> {
+  const lys = tema === 'lys';
+  return {
+    '--c-bakgrunn': token(lys ? '--c-perrong' : '--c-tunnel'),
+    '--c-tekst': token(lys ? '--c-grafitt' : '--c-lys-tekst'),
+    '--c-tekst-2': token(lys ? '--c-grafitt-2' : '--c-lys-tekst-2'),
+    '--c-spor': token(lys ? '--c-skinne' : '--c-skinne-mork'),
+    '--c-lenke': token(lys ? '--c-trikkebla' : '--c-lys-tekst'),
+  };
+}
+
+/** Når temaet skifter mellom to stasjoner, scrubbes fargene over 60vh. */
+function tunnelovergang(b: Bevegelse): void {
+  const flate = document.querySelector<HTMLElement>('[data-linje-flate]');
+  const liste = [...document.querySelectorAll<HTMLElement>('[data-stasjon]')];
+  if (!flate || liste.length === 0) return;
+
+  const tema = (el: HTMLElement): Tema => (el.dataset.tema === 'tunnel' ? 'tunnel' : 'lys');
+  gsap.set(flate, temafarger(tema(liste[0])));
+
+  liste.forEach((stasjon, i) => {
+    const forrige = liste[i - 1];
+    if (!forrige || tema(forrige) === tema(stasjon)) return;
+    gsap.fromTo(flate, temafarger(tema(forrige)), {
+      ...temafarger(tema(stasjon)),
+      ease: 'none',
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: stasjon,
+        start: 'top bottom',
+        end: 'top 40%', // 60vh scroll-distanse
+        scrub: b.scrub,
+      },
+    });
+  });
+}
+
+/* ---------- Materiell-stripe (5.5) ---------- */
+
+/** Desktop: seksjonen pinnes og raden glir horisontalt i takt med scroll. */
+function materiellPin(b: Bevegelse): Opprydding | undefined {
+  const seksjon = document.querySelector<HTMLElement>('[data-materiell]');
+  const rad = seksjon?.querySelector<HTMLElement>('[data-materiell-rad]');
+  if (!seksjon || !rad) return;
+
+  seksjon.dataset.pinnet = 'true';
+  const avstand = () => Math.max(0, rad.scrollWidth - document.documentElement.clientWidth);
+  const nav = document.querySelector<HTMLElement>('.nav')?.offsetHeight ?? 0;
+
+  gsap.to(rad, {
+    x: () => -avstand(),
+    ease: 'none',
+    scrollTrigger: {
+      trigger: seksjon,
+      start: () => `top top+=${nav}`,
+      end: () => `+=${avstand()}`,
+      pin: true,
+      scrub: b.scrub,
+      invalidateOnRefresh: true,
+    },
+  });
+
+  return () => {
+    delete seksjon.dataset.pinnet;
   };
 }
 
@@ -355,12 +457,15 @@ export function initMotion(): void {
 
     const stoppLenis = avslatt ? undefined : startLenis();
     stasjoner(b, avslatt);
+    if (!avslatt) tunnelovergang(b);
     if (desktop && !avslatt) sporlinjeDesktop(b);
     const skjulGjeldende = desktop ? undefined : fremdriftMobil(b, avslatt);
+    const slippMateriell = desktop && !avslatt ? materiellPin(b) : undefined;
 
     return () => {
       stoppLenis?.();
       skjulGjeldende?.();
+      slippMateriell?.();
     };
   });
   registrerOpprydding(() => mm.revert());

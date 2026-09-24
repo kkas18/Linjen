@@ -19,3 +19,7 @@ Kristiania Sporveisselskab åpnet de første linjene med hest i 1875. [[TODO: hv
 [[TODO: vognene, hestene og hvordan driften foregikk i hverdagen.]]
 
 [[TODO: hvordan hestesporveien utviklet seg fram mot den elektriske trikken i 1894.]]
+
+<!-- mer -->
+
+[[TODO: lengre tekst om hestesporveien for epokesiden.]]

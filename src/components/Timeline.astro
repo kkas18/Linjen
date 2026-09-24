@@ -1,0 +1,94 @@
+---
+// Tidslinje-oppsummering (5.6): alle stasjonene som klikkbare prikker på én linje.
+import { arTekst, type Epoke } from '../lib/epoker';
+
+interface Props {
+  epoker: Epoke[];
+}
+
+const { epoker } = Astro.props;
+---
+
+<nav class="tidslinje" aria-label="Alle stasjoner">
+  <ol class="tidslinje__liste">
+    {epoker.map((e) => (
+      <li class="tidslinje__punkt">
+        <a
+          class="tidslinje__lenke"
+          href={`#${e.data.slug}`}
+          aria-label={`${e.data.tittel}, ${arTekst(e.data)}`}
+        >
+          <span class="tidslinje__prikk" aria-hidden="true" />
+          <span class="t-mono tidslinje__ar" aria-hidden="true">
+            {e.data.ar ?? arTekst(e.data)}
+          </span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .tidslinje__liste {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    padding: 0;
+  }
+
+  /* Den horisontale linjen gjennom prikkene */
+  .tidslinje__liste::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--s-5) / 2 - var(--spor-bredde) / 2) 0 auto;
+    height: var(--spor-bredde);
+    background: var(--c-skinne);
+  }
+
+  .tidslinje__lenke {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: var(--s-2);
+    min-width: var(--s-5);
+    text-decoration: none;
+    color: var(--c-grafitt-2);
+  }
+
+  .tidslinje__prikk {
+    display: grid;
+    place-items: center;
+    width: var(--s-5);
+    height: var(--s-5);
+  }
+
+  .tidslinje__prikk::after {
+    content: '';
+    width: var(--s-3);
+    height: var(--s-3);
+    border-radius: 50%;
+    background: var(--c-perrong);
+    border: var(--spor-bredde) solid var(--c-grafitt);
+    transition:
+      background-color var(--t-rask) var(--ease-out),
+      border-color var(--t-rask) var(--ease-out);
+  }
+
+  .tidslinje__lenke:hover .tidslinje__prikk::after,
+  .tidslinje__lenke:focus-visible .tidslinje__prikk::after {
+    background: var(--c-trikkebla);
+    border-color: var(--c-trikkebla);
+  }
+
+  .tidslinje__ar {
+    display: none;
+    font-size: var(--fs-etikett);
+  }
+
+  @media (min-width: 48rem) {
+    .tidslinje__ar {
+      display: block;
+    }
+  }
+</style>

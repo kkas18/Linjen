@@ -1,0 +1,89 @@
+---
+// Materiellkort (5.5): foto, typebetegnelse i Plex Mono, år i drift og én setning.
+import { Picture } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+
+interface Props {
+  vogn: CollectionEntry<'materiell'>;
+}
+
+const { data } = Astro.props.vogn;
+---
+
+<li class="kort">
+  <article class="kort__indre">
+    {data.bilde ? (
+      <Picture
+        src={data.bilde.fil}
+        alt={data.bilde.alt}
+        formats={['avif', 'webp']}
+        widths={[320, 640]}
+        sizes="18rem"
+        loading="lazy"
+        class="kort__bilde"
+      />
+    ) : (
+      <PhotoPlaceholder forhold="4 / 3" />
+    )}
+    <div class="kort__tekst">
+      <h3 class="t-mono kort__type">{data.type}</h3>
+      <p class="t-etikett kort__drift">{data.iDrift}</p>
+      <p class="kort__setning">{data.setning}</p>
+    </div>
+  </article>
+</li>
+
+<style>
+  .kort {
+    flex: 0 0 min(var(--kort-b), 80vw);
+    scroll-snap-align: start;
+  }
+
+  .kort__indre {
+    height: 100%;
+    display: grid;
+    align-content: start;
+    gap: var(--s-4);
+    padding: var(--s-3);
+    background: var(--c-flate);
+    color: var(--c-grafitt);
+    transition:
+      transform var(--t-rask) var(--ease-out),
+      box-shadow var(--t-rask) var(--ease-out);
+  }
+
+  .kort__bilde {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    filter: grayscale(1);
+  }
+
+  .kort__tekst {
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .kort__type {
+    font-family: var(--f-mono);
+    font-size: var(--fs-ingress);
+    font-weight: 300;
+    line-height: 1.2;
+  }
+
+  .kort__drift {
+    color: var(--c-grafitt-2);
+  }
+
+  .kort__setning {
+    font-size: var(--fs-brod);
+  }
+
+  @media (hover: hover) and (min-width: 48rem) {
+    .kort__indre:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lift);
+    }
+  }
+</style>

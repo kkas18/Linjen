@@ -1,5 +1,5 @@
-// Tar Playwright-skjermbilder av forsiden i mobil- og desktopstørrelse.
-// Bruk: npm run build && npm run skjermbilder [-- fase-1]
+// Tar Playwright-skjermbilder av forsiden og en epokeside i mobil- og desktopstørrelse.
+// Bruk: npm run build && npm run skjermbilder [-- fase-2]
 // Sett CHROMIUM_PATH hvis Playwright ikke finner sin egen nettleser.
 
 import { spawn, spawnSync } from 'node:child_process';
@@ -14,6 +14,16 @@ const adresse = `http://localhost:${port}${base.replace(/\/$/, '')}/`;
 const storrelser = [
   { navn: 'mobil-390x844', width: 390, height: 844, mobil: true },
   { navn: 'desktop-1440x900', width: 1440, height: 900, mobil: false },
+];
+
+// Punkter på forsiden som fotograferes (hoppes over hvis elementet ikke finnes).
+const punkter = [
+  { navn: 'stasjon', sel: '[data-stasjon-skilt]', forskyvning: -120 },
+  { navn: 'inn-i-tunnel', sel: '#t-banen', forskyvning: -450 },
+  { navn: 'tunnel', sel: '#t-banen', forskyvning: -80 },
+  { navn: 'ut-av-tunnel', sel: '#sporveien', forskyvning: -300 },
+  { navn: 'materiell', sel: '[data-materiell]', forskyvning: 0 },
+  { navn: 'avslutning', sel: '.avslutning', forskyvning: -80 },
 ];
 
 const vent = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -32,14 +42,29 @@ async function ventPaServer() {
 }
 
 /** Scroller rolig gjennom siden så alle scroll-animasjoner blir utløst. */
-async function kjorGjennom(side) {
+async function kjorGjennom(side, mobil) {
   const hoyde = await side.evaluate(() => document.documentElement.scrollHeight);
-  const steg = await side.evaluate(() => window.innerHeight / 3);
+  const steg = await side.evaluate(() => Math.round(window.innerHeight / 3));
   for (let y = 0; y <= hoyde; y += steg) {
-    await side.mouse.wheel(0, steg);
-    await vent(120);
+    if (mobil) await side.evaluate((ny) => window.scrollTo(0, ny), y);
+    else await side.mouse.wheel(0, steg);
+    await vent(60);
   }
   await vent(1500);
+}
+
+async function scrollTil(side, sel, forskyvning) {
+  const funnet = await side.evaluate(
+    ([s, f]) => {
+      const el = document.querySelector(s);
+      if (!el) return false;
+      window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY + f);
+      return true;
+    },
+    [sel, forskyvning],
+  );
+  if (funnet) await vent(1800);
+  return funnet;
 }
 
 // Astro 7 starter `preview` som bakgrunnstjeneste; den stoppes med `astro preview stop` til slutt.
@@ -62,34 +87,26 @@ try {
     await vent(2500); // hero-intro
     await side.screenshot({ path: `${mappe}/${s.navn}-hero.png` });
 
-    if (s.mobil) {
-      // Touch-scroll: hopp direkte, la ScrollTrigger fange opp.
-      await side.evaluate(() => {
-        document.querySelector('[data-stasjon]')?.scrollIntoView();
-        window.scrollBy(0, -80);
-      });
-      await vent(2000);
-    } else {
-      await side.mouse.move(s.width / 2, s.height / 2);
-      await kjorGjennom(side);
-      await side.evaluate(() => {
-        const skilt = document.querySelector('[data-stasjon-skilt]');
-        if (skilt) window.scrollTo(0, skilt.getBoundingClientRect().top + window.scrollY - 120);
-      });
-      await vent(1500);
-    }
-    await side.screenshot({ path: `${mappe}/${s.navn}-stasjon.png` });
+    await side.mouse.move(s.width / 2, s.height / 2);
+    await kjorGjennom(side, s.mobil);
 
-    if (s.mobil) {
-      await side.evaluate(() => window.scrollBy(0, window.innerHeight));
-      await vent(2000);
-      await side.screenshot({ path: `${mappe}/${s.navn}-stasjon-bilde.png` });
+    for (const p of punkter) {
+      if (await scrollTil(side, p.sel, p.forskyvning)) {
+        await side.screenshot({ path: `${mappe}/${s.navn}-${p.navn}.png` });
+      }
     }
 
     // Helside tas fra toppen, ellers havner faste elementer (navigasjon) midt på bildet.
     await side.evaluate(() => window.scrollTo(0, 0));
     await vent(2000);
     await side.screenshot({ path: `${mappe}/${s.navn}-helside.png`, fullPage: true });
+
+    // Én epokeside (finnes fra fase 2)
+    const epoke = await side.goto(`${adresse}epoker/t-banen/`, { waitUntil: 'networkidle' });
+    if (epoke?.ok()) {
+      await vent(2500);
+      await side.screenshot({ path: `${mappe}/${s.navn}-epokeside.png`, fullPage: true });
+    }
     await side.close();
   }
 

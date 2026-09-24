@@ -20,8 +20,11 @@ const epoker = defineCollection({
     z.object({
       slug: z.string(),
       rekkefolge: z.number().int().positive(),
-      ar: z.number().int(),
+      // `ar` brukes til sortering og opptelling. null = «i dag» (ingen opptelling).
+      ar: z.number().int().nullable(),
       arSlutt: z.number().int().nullable().optional(),
+      // Visningsform når året ikke er ett enkelt tall, f.eks. «1945–1960-tallet» eller «I dag →».
+      arVisning: z.string().optional(),
       tittel: z.string(),
       etikett: z.string(),
       ingress: z.string(),
@@ -39,4 +42,16 @@ const epoker = defineCollection({
     }),
 });
 
-export const collections = { epoker };
+const materiell = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/materiell' }),
+  schema: (ctx) =>
+    z.object({
+      rekkefolge: z.number().int().positive(),
+      type: z.string(), // typebetegnelse, vises i Plex Mono
+      iDrift: z.string(), // f.eks. «1966–2006»
+      setning: z.string(),
+      bilde: bilde(ctx).optional(),
+    }),
+});
+
+export const collections = { epoker, materiell };

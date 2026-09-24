@@ -1,0 +1,73 @@
+---
+// Avslutning (5.6): setning om framtiden, tidslinje og lenker videre.
+import Timeline from './Timeline.astro';
+import { url } from '../lib/url';
+import type { Epoke } from '../lib/epoker';
+
+interface Props {
+  epoker: Epoke[];
+}
+
+const { epoker } = Astro.props;
+---
+
+<section class="avslutning ramme" aria-labelledby="avslutning-tittel">
+  <p class="t-etikett avslutning__etikett">Veien videre</p>
+  <h2 class="t-h1 avslutning__setning" id="avslutning-tittel">
+    Nye trikker, nytt signalsystem og nye tunneler – linjen fortsetter.
+  </h2>
+
+  <Timeline epoker={epoker} />
+
+  <ul class="avslutning__lenker">
+    <li>
+      <a href={url('/nettverket/')}>
+        Se nettverket vokse <span aria-hidden="true">→</span>
+      </a>
+    </li>
+    <li>
+      <a href={url('/kilder/')}>
+        Kilder og bildekreditering <span aria-hidden="true">→</span>
+      </a>
+    </li>
+  </ul>
+</section>
+
+<style>
+  .avslutning {
+    display: grid;
+    gap: var(--s-8);
+    padding-block: var(--s-10) var(--s-8);
+  }
+
+  .avslutning__etikett {
+    color: var(--c-grafitt-2);
+    margin-bottom: calc(var(--s-8) * -1 + var(--s-4));
+  }
+
+  .avslutning__setning {
+    max-width: 18ch;
+  }
+
+  .avslutning__lenker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-5) var(--s-7);
+    list-style: none;
+    padding: 0;
+  }
+
+  .avslutning__lenker a {
+    color: var(--c-trikkebla);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: var(--linje-tynn) solid currentColor;
+    padding-bottom: 2px;
+  }
+
+  @media (min-width: 48rem) {
+    .avslutning {
+      padding-left: var(--stasjon-innrykk);
+    }
+  }
+</style>
