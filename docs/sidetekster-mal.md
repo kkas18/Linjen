@@ -97,12 +97,72 @@ Hver underside har de samme feltene: `sideTittel` (H1 og fanetittel), `sideBeskr
 - Skriv norsk bokmål og britisk engelsk, med vanlig setningsstil.
 - Ikke sett inn historiske påstander i sidetekstene. Fakta hører hjemme i epoketekstene, med kilde (CLAUDE.md regel 3).
 
-## 5. Etter endring
+## 5. Engelske sidetekster
+
+De engelske sidetekstene står i `src/i18n/en.ts`, med de samme feltene som i `nb.ts`. De skal si det samme som den norske teksten, men være skrevet som naturlig engelsk.
+
+### Grunnregler
+
+- **Britisk engelsk** (en-GB), fordi nettstedet er merket `en_GB`: _signalling_, _metres_, _colour_, _organisation_, _programme_.
+- **Oversett innholdet, ikke ordene.** Skriv setningen slik en engelsk redaktør ville skrevet den. Det er helt i orden at setningsbygningen blir annerledes enn på norsk.
+- **Ingen nye opplysninger.** Den engelske teksten skal ikke inneholde fakta som ikke står i den norske. Står det `[[TODO: …]]` på norsk, skal det stå `[[TODO: …]]` på engelsk også, gjerne med beskrivelsen oversatt.
+- **Setningsstil i titler og knapper:** «Watch the network grow», ikke «Watch The Network Grow».
+- **Samme tone som på norsk:** presis og nøktern, uten markedsføringsspråk.
+
+### Ordliste
+
+Bruk de samme engelske ordene overalt, også i epoketekstene, signalhistorien og nettverksnavnene. Listen viser ordene nettstedet allerede bruker:
+
+| Norsk                     | Engelsk                           | Merknad                                       |
+| ------------------------- | --------------------------------- | --------------------------------------------- |
+| epoke                     | era                               | Menyen: _Eras_                                |
+| stasjon                   | station                           | _Previous station_ / _Next station_           |
+| materiell                 | rolling stock                     | Menyen: _Rolling stock_                       |
+| vogn / vogntype           | car / vehicle type                |                                               |
+| nettverket                | the network                       | Menyen: _Network_                             |
+| signal (anlegget)         | signalling                        | Menyen: _Signalling_                          |
+| signalbilde               | signal aspect                     | Demoen: _Next aspect_                         |
+| stillverk / reléstillverk | interlocking / relay interlocking |                                               |
+| hestesporvei              | horse tramway                     |                                               |
+| trikk                     | tram                              |                                               |
+| forstadsbane              | suburban railway                  |                                               |
+| T-bane                    | metro (T-bane)                    | _Metro_ alene når det er tydelig              |
+| linje / strekning         | line / route                      | _lines in service_                            |
+| nedlagt                   | closed                            |                                               |
+| kilder                    | sources                           | Menyen: _Sources_                             |
+| bildekreditering          | image credits                     |                                               |
+| forenklet                 | simplified                        | Demoen: _Simplified – generic signal aspects_ |
+| i dag                     | today                             | _1875 – today_, _Today →_                     |
+
+**Oversettes ikke:** Sporveien, Oslo Sporveier, Kristiania Sporveisselskab, Kristiania Elektriske Sporvei, Kristiania, Holmenkolbanen, Fellestunnelen, Ringbanen, stasjonsnavn og typebetegnelser. Egennavn med en etablert engelsk forklaring kan få den første gang i en tekst, for eksempel «Fellestunnelen (the common tunnel)».
+
+### Typografi
+
+| Norsk                      | Engelsk                                           |
+| -------------------------- | ------------------------------------------------- |
+| «sitat»                    | “quote”, og ‘quote’ inne i et sitat               |
+| apostrof `'`               | typografisk `’` (_today’s_), eller `\'` i `en.ts` |
+| 1945–1960-tallet           | 1945–1960s                                        |
+| 2010-tallet                | 2010s                                             |
+| 1 200 (mellomrom)          | 1,200 (komma)                                     |
+| 8,5 km                     | 8.5 km                                            |
+| tankestrek – med mellomrom | en dash – med mellomrom, likt som på norsk        |
+
+### Lengde
+
+Engelsk blir ofte litt kortere enn norsk, men ikke alltid. Sjekk særlig knapper, menyen og etiketter på mobil (390 px), og at `forside.h1` og `forside.etikett` får plass på delingsbildet `dist/og/en-forside.png`.
+
+### Ikke endre
+
+- `meta.ogLocale` (`en_GB`), `nav.annetSprakKort` (`NB`) og `nav.annetSprakNavn` (`Norsk`). Språkvelgeren viser disse når siden er på engelsk.
+- `forside.tittel`, som skal være `Linjen` også på engelsk.
+
+## 6. Etter endring
 
 - **Delingsbildene** (`forside.etikett`, `forside.h1` og `bunn.undertittel`) lages på nytt ved `npm run build`. Sjekk at teksten får plass i `dist/og/forside.png` og `en-forside.png`.
 - **Testene** leser tekstene fra ordbøkene, så de trenger ingen endring.
 
-## 6. Sjekk før du committer
+## 7. Sjekk før du committer
 
 ```bash
 npm run check    # TypeScript: fanger felt som mangler i nb.ts eller en.ts
@@ -112,6 +172,7 @@ npm run dev      # se sidene på nb og en, mobil og desktop
 ```
 
 - [ ] Endringen er gjort i både `nb.ts` og `en.ts`.
+- [ ] Den engelske teksten er britisk engelsk, følger ordlisten og har ingen opplysninger som ikke står på norsk.
 - [ ] Ingen feltnavn er endret, og `forside.tittel` er fortsatt `Linjen`.
 - [ ] Beskrivelsene er 120–160 tegn.
 - [ ] Knapper og etiketter får plass på mobil (390 px).
