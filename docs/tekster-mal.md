@@ -15,6 +15,8 @@ Denne malen viser hvor tekstene i Linjen ligger og hvordan de fylles ut. Alle in
 
 ### Frontmatter
 
+Tall i eksemplet er fiktive og viser bare formatet.
+
 ```yaml
 ---
 slug: hestesporveien # samme på begge språk, bare små bokstaver og bindestrek
@@ -27,8 +29,8 @@ etikett: 'KRISTIANIA 1875' # kort stikkord over tittelen på epokesiden
 ingress: 'Én til to setninger som oppsummerer epoken.'
 tema: lys # lys | tunnel (tunnel gir mørk bakgrunn)
 faktaruter:
-  - { etikett: 'Linjelengde', verdi: '8,5 km' }
-  - { etikett: 'Antall vogner', verdi: '24' }
+  - { etikett: 'Linjelengde', verdi: '12,5 km' } # fiktivt eksempel
+  - { etikett: 'Antall vogner', verdi: '[[TODO: antall vogner]]' }
 galleri: [] # bilder: se docs/bilder-mal.md
 forEtter: null
 ---
