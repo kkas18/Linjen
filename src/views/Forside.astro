@@ -6,7 +6,7 @@ import TrackLine from '../components/TrackLine.astro';
 import Station from '../components/Station.astro';
 import MaterialStrip from '../components/MaterialStrip.astro';
 import Closing from '../components/Closing.astro';
-import { hentEpoker } from '../lib/epoker';
+import { hentEpoker, hentForsidebilde } from '../lib/epoker';
 import { ordbok, sprak } from '../i18n';
 
 // Første stasjon teller opp fra dette året (det finnes ingen forrige epoke).
@@ -15,6 +15,7 @@ const START_AR = 1850;
 const lang = sprak(Astro.currentLocale);
 const t = ordbok(lang).forside;
 const epoker = await hentEpoker(lang);
+const forsidebilde = await hentForsidebilde(lang);
 // Det første bildet etter overgangen til tunnel får «tunnellys» (5.4).
 const forsteTunnel = epoker.findIndex(
   (e, i) => e.data.tema === 'tunnel' && epoker[i - 1]?.data.tema !== 'tunnel',
@@ -22,7 +23,7 @@ const forsteTunnel = epoker.findIndex(
 ---
 
 <Base tittel={t.tittel} beskrivelse={t.beskrivelse}>
-  <Hero etikett={t.etikett} tittel={t.h1} ingress={t.ingress} />
+  <Hero etikett={t.etikett} tittel={t.h1} ingress={t.ingress} bilde={forsidebilde} />
 
   <TrackLine>
     {epoker.map((epoke, i) => (

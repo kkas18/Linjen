@@ -86,4 +86,26 @@ const materiellEn = defineCollection({
   schema: materiellSkjema,
 });
 
-export const collections = { epoker, materiell, signal, epokerEn, signalEn, materiellEn };
+// Forsiden: bare forsidebildet (5.1). Uten bilde vises plassholderen.
+const forsideSkjema = (ctx: SchemaContext) => z.object({ hovedbilde: bilde(ctx).optional() });
+
+const forside = defineCollection({
+  loader: glob({ pattern: 'forside.md', base: './src/content/forside' }),
+  schema: forsideSkjema,
+});
+
+const forsideEn = defineCollection({
+  loader: glob({ pattern: 'forside.md', base: './src/content/en/forside' }),
+  schema: forsideSkjema,
+});
+
+export const collections = {
+  epoker,
+  materiell,
+  signal,
+  epokerEn,
+  signalEn,
+  materiellEn,
+  forside,
+  forsideEn,
+};

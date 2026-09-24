@@ -128,4 +128,30 @@ npm run build   # bygger og lager OG-bilder
 
 ## Forsidebildet (hero)
 
-Forsidebildet har foreløpig ikke noe eget felt i innholdsfilene, så det krever en liten kodeendring. Si fra når du har et arkivfoto, så kobler jeg det til. Det lastes med `fetchpriority="high"` for rask visning.
+Forsidebildet legges inn i en egen innholdsfil, med de samme bildefeltene som ellers (punkt 2):
+
+| Språk   | Fil                                 | Sti til bildet                   |
+| ------- | ----------------------------------- | -------------------------------- |
+| Norsk   | `src/content/forside/forside.md`    | `../../assets/photos/fil.jpg`    |
+| Engelsk | `src/content/en/forside/forside.md` | `../../../assets/photos/fil.jpg` |
+
+Filene inneholder en utkommentert mal. Fyll inn feltene og fjern `#` foran linjene:
+
+```yaml
+---
+hovedbilde:
+  fil: ../../assets/photos/ÅR-emne-01.jpg
+  alt: 'Kort beskrivelse av hva bildet viser'
+  fotograf: 'Ukjent'
+  ar: 1900
+  arkiv: 'Eier eller arkiv'
+  lisens: 'CC BY 4.0'
+  kilde: 'https://…'
+---
+```
+
+- **Uten bilde:** Toppseksjonen viser plassholderen «Arkivfoto kommer».
+- **Begge språk:** Bygget stopper hvis bildet bare står i én av filene.
+- **Bildetekst:** Vises ikke i toppseksjonen, men krediteringen kommer automatisk på `/kilder/` som «Forsiden».
+- **Utsnitt:** Bildet fyller hele skjermen og beskjæres, både i stående format på mobil og i bredformat på desktop. Velg et foto der motivet står omtrent midt i bildet, og der nedre venstre del er rolig nok til teksten.
+- **Lasting:** Bildet lastes med `fetchpriority="high"`. Kjør Lighthouse (`npm run lhci`) etterpå for å sjekke at LCP fortsatt er under 2 sekunder.

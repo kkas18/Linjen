@@ -155,6 +155,7 @@ export const nb = {
     etter: 'etter',
     signal: 'Signal',
     materiell: 'Materiell',
+    forside: 'Forsiden',
   },
   om: {
     sideTittel: 'Om nettstedet',
